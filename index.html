@@ -57,7 +57,10 @@
                          id="profilePhoto">
                     <div>
                         <h1>Vlad Budko</h1>
-                        <p class="subtitle">Full-Stack Builder</p>
+                        <p class="subtitle">
+                            <span id="typingText"></span>
+                            <span class="typing-cursor">|</span>
+                        </p>
                         <p class="description">
                             I build complete products from scratch. 16 e-commerce stores ($248k revenue), 
                             AI therapy app with 173 users, 56 landing pages, and more. 
@@ -389,6 +392,50 @@
     </footer>
 
     <script>
+        // Typing Effect
+        const roles = [
+            "Full-Stack Builder",
+            "Product Builder",
+            "0-to-1 Builder",
+            "Builder & Operator"
+        ];
+        
+        let roleIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typingSpeed = 100;
+        
+        function typeEffect() {
+            const typingText = document.getElementById('typingText');
+            const currentRole = roles[roleIndex];
+            
+            if (isDeleting) {
+                typingText.textContent = currentRole.substring(0, charIndex - 1);
+                charIndex--;
+                typingSpeed = 50;
+            } else {
+                typingText.textContent = currentRole.substring(0, charIndex + 1);
+                charIndex++;
+                typingSpeed = 100;
+            }
+            
+            if (!isDeleting && charIndex === currentRole.length) {
+                // Finished typing, wait before deleting
+                typingSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                // Finished deleting, move to next role
+                isDeleting = false;
+                roleIndex = (roleIndex + 1) % roles.length;
+                typingSpeed = 500;
+            }
+            
+            setTimeout(typeEffect, typingSpeed);
+        }
+        
+        // Start typing effect
+        typeEffect();
+
         // Theme Toggle
         const themeToggle = document.getElementById('themeToggle');
         const html = document.documentElement;
