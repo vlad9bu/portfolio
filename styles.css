@@ -177,6 +177,18 @@ nav {
     color: var(--text-secondary);
     font-weight: 400;
     margin-bottom: 1rem;
+    min-height: 2.5rem;
+}
+
+.typing-cursor {
+    color: var(--accent);
+    animation: blink 0.7s infinite;
+    font-weight: 300;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 
 .hero .description {
