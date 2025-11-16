@@ -178,11 +178,16 @@ nav {
     font-weight: 400;
     margin-bottom: 1rem;
     min-height: 2.5rem;
+    margin-top: -5px;
+}
+
+#typingText {
+    font-weight: 600;
 }
 
 .typing-cursor {
     color: var(--accent);
-    font-weight: 300;
+    font-weight: 500;
     display: inline-block;
     animation: blink 0.8s ease-in-out infinite;
     -webkit-animation: blink 0.8s ease-in-out infinite;
