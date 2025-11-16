@@ -175,18 +175,17 @@ nav {
 .hero .subtitle {
     font-size: 1.75rem;
     color: var(--text-secondary);
-    font-weight: 600;
+    font-weight: 400;
     margin-bottom: 1rem;
     min-height: 2.5rem;
 }
 
 .typing-cursor {
     color: var(--accent);
-    font-weight: 500;
+    font-weight: 300;
     display: inline-block;
     animation: blink 0.8s ease-in-out infinite;
     -webkit-animation: blink 0.8s ease-in-out infinite;
-    margin: -5px;
 }
 
 @keyframes blink {
@@ -584,6 +583,39 @@ section {
     color: var(--text-primary);
     font-size: 1.125rem;
     font-weight: 500;
+}
+
+.track-record {
+    margin-top: 4rem;
+    text-align: left;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.track-record h3 {
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.track-record ul {
+    list-style: none;
+    padding: 0;
+}
+
+.track-record li {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.6;
+}
+
+.track-record li:last-child {
+    border-bottom: none;
 }
 
 footer {
