@@ -78,3 +78,24 @@ test("server-renders the minimal comparison edition", async () => {
   assert.match(html, /https:\/\/vladbudko\.com\/og-minimal\.png/);
   assert.doesNotMatch(html, /Download Resume|Get in touch/i);
 });
+
+test("server-renders the focused minimal copy without group catalog noise", async () => {
+  const response = await render("/minimal-v2");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /Vlad Budko — Minimal Focus Edition/);
+  assert.match(html, /One group\. One operating system/);
+  assert.match(html, /Product creation/);
+  assert.match(html, /Founder judgment/);
+  assert.match(html, /Successful exit through an equity sale/);
+  assert.match(html, /Some tools exist outside the group/);
+  assert.match(html, /Knowing when to stop is part of building/);
+  assert.match(html, /We decided not to keep scaling it/);
+  assert.doesNotMatch(
+    html,
+    /GrowKong Network|GrowKong Foundry|PinPinMe|NoSweatKing/,
+  );
+  assert.doesNotMatch(html, /I got these wrong|I chose the wrong business model/);
+});

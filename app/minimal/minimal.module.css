@@ -547,12 +547,280 @@
   transform: translate(4px, -4px);
 }
 
+.focusGroup {
+  align-items: center;
+  border-bottom: 1px solid var(--foreground);
+  border-top: 1px solid var(--foreground);
+  display: grid;
+  gap: clamp(20px, 2.5vw, 46px);
+  grid-template-columns: 110px 84px minmax(250px, 0.85fr) minmax(
+      320px,
+      1.15fr
+    ) auto;
+  min-height: 270px;
+  overflow: hidden;
+  padding: 30px 0;
+  position: relative;
+  transition: color 320ms ease, padding 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 120ms ease;
+}
+
+.focusGroup::before {
+  background: var(--accent);
+  content: "";
+  inset: 0;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.focusGroup > * {
+  position: relative;
+  z-index: 1;
+}
+
+.focusGroup:hover {
+  color: #fff;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.focusGroup:hover::before {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.focusGroupCode,
+.focusGroupIdentity small {
+  color: var(--secondary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  transition: color 280ms ease;
+}
+
+.focusGroupLogo {
+  align-items: center;
+  background: #fff;
+  display: flex;
+  height: 84px;
+  justify-content: center;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  width: 84px;
+}
+
+.focusGroupLogo img {
+  height: 70px;
+  width: 70px;
+}
+
+.focusGroupIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.focusGroupIdentity strong {
+  font-size: clamp(30px, 3.4vw, 58px);
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+}
+
+.focusGroup p {
+  color: var(--secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 650px;
+  transition: color 280ms ease;
+}
+
+.focusGroup > b {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.focusGroup:hover .focusGroupCode,
+.focusGroup:hover .focusGroupIdentity small,
+.focusGroup:hover p {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.focusGroup:hover .focusGroupLogo {
+  transform: rotate(-5deg) scale(1.08);
+}
+
 .darkSection {
   --foreground: #f2f2ec;
   --secondary: #a6a79f;
   --line: rgba(242, 242, 236, 0.2);
   background: #10110f;
   color: var(--foreground);
+}
+
+.capabilityHeading {
+  margin-bottom: 70px;
+}
+
+.capabilityGrid {
+  border-bottom: 1px solid var(--foreground);
+  border-top: 1px solid var(--foreground);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.capabilityGrid article {
+  display: flex;
+  flex-direction: column;
+  min-height: 430px;
+  padding: 24px;
+  transition: background-color 320ms ease, color 320ms ease;
+}
+
+.capabilityGrid article + article {
+  border-left: 1px solid var(--line);
+}
+
+.capabilityGrid article > div {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.capabilityGrid article > div span {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.capabilityGrid article small,
+.capabilityGrid article > strong {
+  color: var(--secondary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 280ms ease;
+}
+
+.capabilityGrid h3 {
+  font-size: clamp(27px, 2.8vw, 48px);
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+  margin: auto 0 28px;
+}
+
+.capabilityGrid p {
+  color: var(--secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0 0 38px;
+  transition: color 280ms ease;
+}
+
+.capabilityGrid article > strong {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.capabilityGrid article:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.capabilityGrid article:hover small,
+.capabilityGrid article:hover p,
+.capabilityGrid article:hover > strong {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.compactHeading {
+  margin-bottom: 58px;
+}
+
+.compactSystemList {
+  border-top: 1px solid var(--foreground);
+}
+
+.compactSystemList > a,
+.compactSystemList > article {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 40px minmax(240px, 0.7fr) minmax(320px, 1.3fr) 24px;
+  min-height: 150px;
+  overflow: hidden;
+  padding: 24px 0;
+  position: relative;
+  transition: background-color 300ms ease, color 300ms ease,
+    padding 360ms cubic-bezier(0.22, 1, 0.36, 1), transform 120ms ease;
+}
+
+.compactSystemList > a > span:first-child,
+.compactSystemList > article > span:first-child {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.compactSystemList > a > span:nth-child(2),
+.compactSystemList > article > span:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compactSystemList small {
+  color: var(--secondary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 280ms ease;
+}
+
+.compactSystemList strong {
+  font-size: clamp(25px, 2.8vw, 46px);
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+}
+
+.compactSystemList p {
+  color: var(--secondary);
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 670px;
+  transition: color 280ms ease;
+}
+
+.compactSystemList b {
+  font-size: 18px;
+  justify-self: end;
+  transition: transform 260ms ease;
+}
+
+.compactSystemList > a:hover,
+.compactSystemList > article:hover {
+  background: var(--foreground);
+  color: var(--background);
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
+.compactSystemList > a:hover small,
+.compactSystemList > a:hover p,
+.compactSystemList > article:hover small,
+.compactSystemList > article:hover p {
+  color: color-mix(in srgb, var(--background) 70%, transparent);
+}
+
+.compactSystemList > a:hover b {
+  transform: translate(4px, -4px);
 }
 
 .systemsGrid {
@@ -797,6 +1065,14 @@ a.systemCard:hover > b {
   margin: 0;
 }
 
+.decisionLead {
+  color: var(--secondary);
+  font-size: 16px;
+  line-height: 1.65;
+  margin: -32px 0 56px auto;
+  max-width: 790px;
+}
+
 .closedList {
   border-top: 1px solid var(--foreground);
 }
@@ -941,7 +1217,8 @@ a.systemCard:hover > b {
 }
 
 .page[data-theme="dark"] .layerLogo,
-.page[data-theme="dark"] .product > img {
+.page[data-theme="dark"] .product > img,
+.page[data-theme="dark"] .focusGroupLogo {
   background: #f4f4ef;
 }
 
@@ -983,16 +1260,20 @@ a.systemCard:hover > b {
   .page[data-motion="ready"] .layer:nth-child(2),
   .page[data-motion="ready"] .product:nth-child(2),
   .page[data-motion="ready"] .metrics article:nth-child(2),
+  .page[data-motion="ready"] .capabilityGrid article:nth-child(2),
+  .page[data-motion="ready"] .compactSystemList > :nth-child(2),
   .page[data-motion="ready"] .closedList article:nth-child(2) {
     animation-delay: 80ms;
   }
 
   .page[data-motion="ready"] .layer:nth-child(3),
-  .page[data-motion="ready"] .metrics article:nth-child(3) {
+  .page[data-motion="ready"] .metrics article:nth-child(3),
+  .page[data-motion="ready"] .capabilityGrid article:nth-child(3) {
     animation-delay: 160ms;
   }
 
-  .page[data-motion="ready"] .metrics article:nth-child(4) {
+  .page[data-motion="ready"] .metrics article:nth-child(4),
+  .page[data-motion="ready"] .capabilityGrid article:nth-child(4) {
     animation-delay: 240ms;
   }
 
@@ -1048,6 +1329,27 @@ a.systemCard:hover > b {
 
   .layerArrow {
     display: none;
+  }
+
+  .focusGroup {
+    grid-template-columns: 90px 84px minmax(240px, 0.8fr) minmax(300px, 1.2fr);
+  }
+
+  .focusGroup > b {
+    grid-column: 3;
+  }
+
+  .capabilityGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .capabilityGrid article:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .capabilityGrid article:nth-child(4) {
+    border-top: 1px solid var(--line);
   }
 }
 
@@ -1153,6 +1455,43 @@ a.systemCard:hover > b {
   .closedList p {
     grid-column: 2;
   }
+
+  .focusGroup {
+    grid-template-columns: 64px 1fr auto;
+    min-height: 0;
+    padding: 28px 0;
+  }
+
+  .focusGroupCode {
+    grid-column: 1 / -1;
+  }
+
+  .focusGroupLogo {
+    height: 64px;
+    width: 64px;
+  }
+
+  .focusGroupLogo img {
+    height: 52px;
+    width: 52px;
+  }
+
+  .focusGroupIdentity {
+    grid-column: 2;
+  }
+
+  .focusGroup p {
+    grid-column: 2 / -1;
+  }
+
+  .focusGroup > b {
+    grid-column: 2;
+  }
+
+  .compactSystemList > a,
+  .compactSystemList > article {
+    grid-template-columns: 32px minmax(220px, 0.8fr) minmax(260px, 1.2fr) 20px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1236,6 +1575,63 @@ a.systemCard:hover > b {
 
   .layerDescription {
     grid-column: 3;
+  }
+
+  .focusGroup {
+    gap: 18px;
+    grid-template-columns: 54px 1fr;
+  }
+
+  .focusGroup:hover {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .focusGroupLogo {
+    height: 54px;
+    width: 54px;
+  }
+
+  .focusGroupLogo img {
+    height: 44px;
+    width: 44px;
+  }
+
+  .focusGroupIdentity {
+    grid-column: 2;
+  }
+
+  .focusGroup p,
+  .focusGroup > b {
+    grid-column: 1 / -1;
+  }
+
+  .capabilityGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .capabilityGrid article {
+    border-left: 0 !important;
+    border-top: 1px solid var(--line);
+    min-height: 360px;
+  }
+
+  .capabilityGrid article:first-child {
+    border-top: 0;
+  }
+
+  .compactSystemList > a,
+  .compactSystemList > article {
+    gap: 16px;
+    grid-template-columns: 24px 1fr 18px;
+  }
+
+  .compactSystemList p {
+    grid-column: 2 / -1;
+  }
+
+  .decisionLead {
+    margin-top: -18px;
   }
 
   .productHeader {
