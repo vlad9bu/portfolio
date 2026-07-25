@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContextSystemCard, MotionController } from "./MinimalMotion";
 import styles from "./minimal.module.css";
 
 export const metadata: Metadata = {
@@ -123,13 +124,19 @@ function LayerRow({ layer }: { layer: OperatingLayer }) {
         href={layer.href}
         target="_blank"
         rel="noreferrer"
+        data-reveal
+        data-press
       >
         {content}
       </a>
     );
   }
 
-  return <article className={styles.layer}>{content}</article>;
+  return (
+    <article className={styles.layer} data-reveal>
+      {content}
+    </article>
+  );
 }
 
 export default function MinimalEdition() {
@@ -141,26 +148,30 @@ export default function MinimalEdition() {
         </a>
         <nav aria-label="Minimal edition index">
           <a href="#now">Now</a>
+          <a href="#systems">Systems</a>
           <a href="#record">Record</a>
           <a href="#closed">Closed</a>
         </nav>
-        <a href="/" className={styles.edition}>
-          Edition B / View original ↗
-        </a>
+        <div className={styles.headerActions}>
+          <MotionController />
+          <a href="/" className={styles.edition}>
+            Edition B / View original ↗
+          </a>
+        </div>
       </header>
 
       <section className={styles.hero} id="top">
         <div className={styles.heroMain}>
-          <div className={styles.heroMeta}>
+          <div className={styles.heroMeta} data-reveal>
             <span>Founder / Operator</span>
             <span>United States</span>
             <span>2026</span>
           </div>
-          <h1>
+          <h1 data-hero-title>
             <span>Vlad</span>
             <span>Budko.</span>
           </h1>
-          <div className={styles.heroStatement}>
+          <div className={styles.heroStatement} data-reveal>
             <p>Co-founder &amp; CEO of GrowKong Group.</p>
             <p>
               I build software companies and the systems around them: products,
@@ -169,7 +180,7 @@ export default function MinimalEdition() {
           </div>
         </div>
 
-        <figure className={styles.portrait}>
+        <figure className={styles.portrait} data-reveal data-tilt>
           <img
             src="/vlad-budko.jpg"
             alt="Vlad Budko"
@@ -185,12 +196,12 @@ export default function MinimalEdition() {
       </section>
 
       <section className={styles.section} id="now">
-        <div className={styles.sectionIndex}>
+        <div className={styles.sectionIndex} data-reveal>
           <span>01</span>
           <p>Now</p>
         </div>
         <div className={styles.sectionBody}>
-          <div className={styles.sectionHeading}>
+          <div className={styles.sectionHeading} data-reveal>
             <p>Current operating system</p>
             <h2>GrowKong is the work.</h2>
             <span>
@@ -205,7 +216,7 @@ export default function MinimalEdition() {
             ))}
           </div>
 
-          <div className={styles.productHeader}>
+          <div className={styles.productHeader} data-reveal>
             <span>Products in market</span>
             <span>First-party software</span>
           </div>
@@ -217,6 +228,8 @@ export default function MinimalEdition() {
                 rel="noreferrer"
                 className={styles.product}
                 key={product.name}
+                data-reveal
+                data-press
               >
                 <span>{product.code}</span>
                 <img src={product.logo} alt="" width="48" height="48" />
@@ -232,8 +245,11 @@ export default function MinimalEdition() {
         </div>
       </section>
 
-      <section className={`${styles.section} ${styles.darkSection}`}>
-        <div className={styles.sectionIndex}>
+      <section
+        className={`${styles.section} ${styles.darkSection}`}
+        id="systems"
+      >
+        <div className={styles.sectionIndex} data-reveal>
           <span>02</span>
           <p>Systems</p>
         </div>
@@ -244,6 +260,9 @@ export default function MinimalEdition() {
               href="https://arahaz.com"
               target="_blank"
               rel="noreferrer"
+              data-reveal
+              data-tilt
+              data-press
             >
               <span>Independent / Live</span>
               <h2>Arahaz</h2>
@@ -254,26 +273,18 @@ export default function MinimalEdition() {
               </p>
               <b aria-hidden="true">↗</b>
             </a>
-            <article className={styles.systemCard}>
-              <span>Private / Daily use</span>
-              <h2>Context OS</h2>
-              <p>
-                My personal AI operating system connecting calendar, projects,
-                working context, and daily decisions into one assistant.
-              </p>
-              <b aria-hidden="true">—</b>
-            </article>
+            <ContextSystemCard />
           </div>
         </div>
       </section>
 
       <section className={styles.section} id="record">
-        <div className={styles.sectionIndex}>
+        <div className={styles.sectionIndex} data-reveal>
           <span>03</span>
           <p>Record</p>
         </div>
         <div className={styles.sectionBody}>
-          <div className={styles.recordIntro}>
+          <div className={styles.recordIntro} data-reveal>
             <p>Before GrowKong</p>
             <h2>Built in Ukraine. Scaled with 22 people. Sold.</h2>
             <span>
@@ -281,24 +292,24 @@ export default function MinimalEdition() {
             </span>
           </div>
           <div className={styles.metrics}>
-            <article>
+            <article data-reveal>
               <strong>126K+</strong>
               <span>Customers</span>
             </article>
-            <article>
+            <article data-reveal>
               <strong>$250K+</strong>
               <span>Annual revenue</span>
             </article>
-            <article>
+            <article data-reveal>
               <strong>22</strong>
               <span>People</span>
             </article>
-            <article>
+            <article data-reveal>
               <strong>9×</strong>
               <span>Daily-order growth</span>
             </article>
           </div>
-          <p className={styles.outcome}>
+          <p className={styles.outcome} data-reveal>
             <span>Outcome</span>
             Successful exit through an equity sale.
           </p>
@@ -309,17 +320,17 @@ export default function MinimalEdition() {
         className={`${styles.section} ${styles.closedSection}`}
         id="closed"
       >
-        <div className={styles.sectionIndex}>
+        <div className={styles.sectionIndex} data-reveal>
           <span>04</span>
           <p>Closed</p>
         </div>
         <div className={styles.sectionBody}>
-          <div className={styles.closedHeading}>
+          <div className={styles.closedHeading} data-reveal>
             <p>Bad decisions, owned plainly.</p>
             <h2>I got these wrong.</h2>
           </div>
           <div className={styles.closedList}>
-            <article>
+            <article data-reveal>
               <span>01 / 130+ users</span>
               <h3>MyWhy</h3>
               <p>
@@ -328,7 +339,7 @@ export default function MinimalEdition() {
                 health decisions. I shut it down.
               </p>
             </article>
-            <article>
+            <article data-reveal>
               <span>02 / ≈ $4K MRR</span>
               <h3>Restaurant photography</h3>
               <p>
@@ -341,9 +352,9 @@ export default function MinimalEdition() {
         </div>
       </section>
 
-      <section className={styles.principle}>
+      <section className={styles.principle} data-principle>
         <span>Working principle / 2026</span>
-        <blockquote>
+        <blockquote data-reveal>
           Evidence over narratives.
           <br />
           Progress over motion.
