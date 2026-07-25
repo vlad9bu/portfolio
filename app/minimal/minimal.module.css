@@ -272,15 +272,11 @@
 }
 
 .sectionIndex {
-  align-self: start;
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
   gap: 18px;
-  height: calc(100svh - 64px);
   padding: 24px 22px;
-  position: sticky;
-  top: 64px;
 }
 
 .sectionIndex > span {
@@ -301,7 +297,7 @@
 
 .sectionBody {
   min-width: 0;
-  padding: clamp(72px, 8vw, 140px) clamp(22px, 5vw, 86px);
+  padding: clamp(64px, 6vw, 104px) clamp(22px, 5vw, 86px);
 }
 
 .sectionHeading {
@@ -976,8 +972,8 @@ a.systemCard:hover > b {
 
 @media (prefers-reduced-motion: no-preference) {
   .page[data-motion="ready"] [data-reveal] {
-    clip-path: inset(0 0 14% 0);
     opacity: 0;
+    translate: 0 24px;
   }
 
   .page[data-motion="ready"] [data-reveal][data-visible="true"] {
@@ -1022,12 +1018,12 @@ a.systemCard:hover > b {
 
 @keyframes revealIn {
   from {
-    clip-path: inset(0 0 14% 0);
     opacity: 0;
+    translate: 0 24px;
   }
   to {
-    clip-path: inset(0 0 0 0);
     opacity: 1;
+    translate: 0 0;
   }
 }
 
@@ -1062,11 +1058,6 @@ a.systemCard:hover > b {
 
   .header nav {
     display: none;
-  }
-
-  .sectionIndex {
-    height: auto;
-    position: static;
   }
 
   .hero {
