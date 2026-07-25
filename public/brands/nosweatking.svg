@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">NoSweatKing logo</title>
+  <desc id="desc">A yellow crown with mint and coral jewels on a warm paper background.</desc>
+  <rect width="1024" height="1024" fill="#fbfaf6"/>
+  <g transform="translate(102.4 162.56) scale(25.6)">
+    <path d="M4 12.5 7.8 19h16.4L28 12.5l-5.6 3.2L16 8l-6.4 7.7L4 12.5Z" fill="#ffc23d" stroke="#20242a" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M7.8 22.5h16.4" stroke="#20242a" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="4" cy="12.5" r="2.1" fill="#ff7a5c" stroke="#20242a" stroke-width="1.4"/>
+    <circle cx="28" cy="12.5" r="2.1" fill="#ff7a5c" stroke="#20242a" stroke-width="1.4"/>
+    <circle cx="16" cy="7" r="2.3" fill="#15b89a" stroke="#20242a" stroke-width="1.4"/>
+  </g>
+</svg>

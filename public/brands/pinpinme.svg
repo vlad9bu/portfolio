@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">PinPinMe logo</title>
+  <desc id="desc">Two white pushpins holding a card with the PinPinMe wordmark on a red background.</desc>
+  <defs>
+    <filter id="shadow" x="-18%" y="-18%" width="136%" height="136%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#111827" flood-opacity="0.14"/>
+    </filter>
+    <g id="pin">
+      <ellipse cx="0" cy="0" rx="94" ry="34" fill="#ffffff"/>
+      <path d="M-46 20H46L69 160H-69Z" fill="#ffffff"/>
+      <path d="M-105 164C-77 122-10 110 51 130C97 145 125 180 117 209C52 236-28 256-113 260C-127 229-125 192-105 164Z" fill="#ffffff"/>
+      <path d="M-16 202H18L1 360C-1 376-13 376-16 360Z" fill="#ffffff"/>
+      <path d="M-56 -9C-29 -28 23 -27 61 -10" fill="none" stroke="#e60023" stroke-linecap="round" stroke-width="13"/>
+      <path d="M-80 207C-68 181-42 164-8 158" fill="none" stroke="#e60023" stroke-linecap="round" stroke-width="16"/>
+    </g>
+  </defs>
+  <rect width="1024" height="1024" fill="#e60023"/>
+  <path d="M264 477V738C264 773 292 801 327 801H697C732 801 760 773 760 738V477" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="25"/>
+  <g filter="url(#shadow)">
+    <use href="#pin" transform="translate(238 214) rotate(-23) scale(0.92)"/>
+    <use href="#pin" transform="translate(786 214) rotate(23) scale(0.92)"/>
+  </g>
+  <path d="M386 443H638" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="24"/>
+  <text x="512" y="708" fill="#ffffff" font-family="Arial Rounded MT Bold, Avenir Next, Arial, sans-serif" font-size="238" font-weight="900" text-anchor="middle">me</text>
+</svg>
