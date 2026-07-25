@@ -87,6 +87,7 @@ test("server-renders the focused minimal copy without group catalog noise", asyn
   const html = await response.text();
   assert.match(html, /Vlad Budko — Minimal Focus Edition/);
   assert.match(html, /One group\. One operating system/);
+  assert.match(html, /first-party company-building system/);
   assert.match(html, /Product creation/);
   assert.match(html, /Founder judgment/);
   assert.match(html, /Successful exit through an equity sale/);
@@ -97,5 +98,6 @@ test("server-renders the focused minimal copy without group catalog noise", asyn
     html,
     /GrowKong Network|GrowKong Foundry|PinPinMe|NoSweatKing/,
   );
+  assert.doesNotMatch(html, /focused customer problems/);
   assert.doesNotMatch(html, /I got these wrong|I chose the wrong business model/);
 });

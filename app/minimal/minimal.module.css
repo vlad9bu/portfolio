@@ -1065,12 +1065,12 @@ a.systemCard:hover > b {
   margin: 0;
 }
 
-.decisionLead {
-  color: var(--secondary);
-  font-size: 16px;
-  line-height: 1.65;
-  margin: -32px 0 56px auto;
-  max-width: 790px;
+.decisionHeading {
+  margin-bottom: 58px;
+}
+
+.decisionHeading h2 {
+  font-size: clamp(46px, 5.1vw, 92px);
 }
 
 .closedList {
@@ -1630,9 +1630,6 @@ a.systemCard:hover > b {
     grid-column: 2 / -1;
   }
 
-  .decisionLead {
-    margin-top: -18px;
-  }
 
   .productHeader {
     align-items: start;

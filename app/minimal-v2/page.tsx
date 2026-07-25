@@ -42,7 +42,7 @@ const capabilities = [
     title: "Product creation",
     label: "From problem to operation",
     description:
-      "I turn focused customer problems into working software, then build the operating structure required to make the product real.",
+      "I turn focused opportunities we identify inside the group into working software, then build the operating structure required to make the product real.",
     proof: "Working products, not decks.",
   },
   {
@@ -156,9 +156,9 @@ export default function MinimalFocusEdition() {
             <p>Current focus</p>
             <h2>One group. One operating system.</h2>
             <span>
-              GrowKong is the current focus: a group designed to build
-              companies, take products to market, and keep the learning inside
-              one operating system.
+              GrowKong is the current focus: a first-party system designed to
+              build and distribute its own products, then keep the capital and
+              learning inside the group.
             </span>
           </div>
 
@@ -184,9 +184,10 @@ export default function MinimalFocusEdition() {
               <strong>GrowKong Group</strong>
             </span>
             <p>
-              A company group combining product creation, creator-powered
-              distribution, and shared operating infrastructure. Built so every
-              launch can make the next one stronger.
+              A closed, first-party company-building system. GrowKong builds and
+              distributes its own products, grows the ones that earn traction,
+              and keeps the resulting capital, data, and operating intelligence
+              inside the group.
             </p>
             <b>Explore the group ↗</b>
           </a>
@@ -328,15 +329,18 @@ export default function MinimalFocusEdition() {
           <p>Decisions</p>
         </div>
         <div className={styles.sectionBody}>
-          <div className={styles.closedHeading} data-reveal>
+          <div
+            className={`${styles.sectionHeading} ${styles.decisionHeading}`}
+            data-reveal
+          >
             <p>Decisions not to scale</p>
             <h2>Knowing when to stop is part of building.</h2>
+            <span>
+              Both projects produced real usage or revenue. The decision was
+              not that nothing worked; it was that the underlying model was not
+              durable enough to keep scaling.
+            </span>
           </div>
-          <p className={styles.decisionLead} data-reveal>
-            Both projects produced real usage or revenue. The decision was not
-            that nothing worked; it was that the underlying model was not
-            durable enough to keep scaling.
-          </p>
           <div className={styles.closedList}>
             <article data-reveal>
               <span>01 / 130+ users</span>
