@@ -47,7 +47,7 @@ test("server-renders the founder profile", async () => {
   assert.match(html, /Context OS/);
   assert.match(html, /Successful exit through an equity sale/);
   assert.match(html, /I got these wrong/);
-  assert.match(html, /MyWhy/);
+  assert.match(html, /MyWhy AI Therapist/);
   assert.match(html, /Restaurant photography/);
 });
 

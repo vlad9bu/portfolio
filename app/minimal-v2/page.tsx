@@ -344,7 +344,7 @@ export default function MinimalFocusEdition() {
           <div className={styles.closedList}>
             <article data-reveal>
               <span>01 / 130+ users</span>
-              <h3>MyWhy</h3>
+              <h3>MyWhy AI Therapist</h3>
               <p>
                 We expected stronger retention and believed the original model
                 could support the product. Real usage showed high churn and

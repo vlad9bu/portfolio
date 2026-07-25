@@ -377,7 +377,7 @@ export default function Home() {
                 <span>01 / CLOSED</span>
                 <strong>130+ users</strong>
               </div>
-              <h3>MyWhy</h3>
+              <h3>MyWhy AI Therapist</h3>
               <p>
                 I chose the wrong business model, underestimated churn, and
                 misjudged the safety risk of putting AI this close to mental

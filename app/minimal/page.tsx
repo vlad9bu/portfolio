@@ -332,7 +332,7 @@ export default function MinimalEdition() {
           <div className={styles.closedList}>
             <article data-reveal>
               <span>01 / 130+ users</span>
-              <h3>MyWhy</h3>
+              <h3>MyWhy AI Therapist</h3>
               <p>
                 I chose the wrong business model, underestimated churn, and
                 misjudged the safety risk of putting AI this close to mental
