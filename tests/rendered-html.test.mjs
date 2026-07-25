@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-async function render() {
+async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("https://vladbudko.com/", {
+    new Request(`https://vladbudko.com${path}`, {
       headers: {
         accept: "text/html",
         host: "vladbudko.com",
@@ -60,4 +60,19 @@ test("keeps job-seeking and starter language out of the finished site", async ()
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
   assert.doesNotMatch(html, /646-239-1517|vlad9bu@gmail\.com/i);
   assert.match(html, /https:\/\/vladbudko\.com\/og\.png/);
+});
+
+test("server-renders the minimal comparison edition", async () => {
+  const response = await render("/minimal");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /Vlad Budko — Minimal Edition/);
+  assert.match(html, /GrowKong is the work/);
+  assert.match(html, /View original/);
+  assert.match(html, /Evidence over narratives/);
+  assert.match(html, /I got these wrong/);
+  assert.match(html, /https:\/\/vladbudko\.com\/og-minimal\.png/);
+  assert.doesNotMatch(html, /Download Resume|Get in touch/i);
 });
