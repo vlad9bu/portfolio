@@ -1,7 +1,46 @@
-const products = [
+type Venture = {
+  name: string;
+  code: string;
+  label: string;
+  status: string;
+  href: string;
+  logo: string;
+  description: string;
+  tone: string;
+  linkLabel: string;
+};
+
+const groupCompanies: Venture[] = [
+  {
+    name: "GrowKong Group",
+    code: "01",
+    label: "COMPANY GROUP · OPERATING SYSTEM",
+    status: "Building now",
+    href: "https://group.growkong.com",
+    logo: "/brands/growkong-group.svg",
+    description:
+      "A company group combining product creation, creator-powered distribution, and shared operating infrastructure.",
+    tone: "group",
+    linkLabel: "View group",
+  },
+  {
+    name: "GrowKong Network",
+    code: "02",
+    label: "CREATOR NETWORK · DISTRIBUTION",
+    status: "Registration open",
+    href: "https://growkong.com",
+    logo: "/brands/growkong-network.svg",
+    description:
+      "The distribution layer of the group. Registrations are open, with more than 100 people already waiting to join.",
+    tone: "network",
+    linkLabel: "View network",
+  },
+];
+
+const products: Venture[] = [
   {
     name: "PinPinMe",
-    code: "01",
+    code: "04",
     label: "AI · SOCIAL SOFTWARE",
     status: "Live",
     href: "https://pinpinme.com",
@@ -9,10 +48,11 @@ const products = [
     description:
       "A Pinterest-first workspace for creating, scheduling, publishing, and improving content without the daily busywork.",
     tone: "violet",
+    linkLabel: "View product",
   },
   {
     name: "NoSweatKing",
-    code: "02",
+    code: "05",
     label: "AI · INTERVIEW SOFTWARE",
     status: "Live",
     href: "https://nosweatking.com",
@@ -20,33 +60,7 @@ const products = [
     description:
       "An AI interview copilot built to understand the question, use a candidate’s real context, and return an answer in about half a second.",
     tone: "gold",
-  },
-];
-
-const systemStages = [
-  {
-    number: "01",
-    action: "Build",
-    title: "GrowKong Foundry",
-    status: "In development",
-    logo: "/brands/growkong-foundry.svg",
-    body: "A product foundry for turning focused customer problems into working software and independent businesses.",
-  },
-  {
-    number: "02",
-    action: "Distribute",
-    title: "GrowKong Network",
-    status: "Registration open",
-    logo: "/brands/growkong-network.svg",
-    body: "Creator-powered distribution is already accepting registrations. More than 100 people are waiting to join.",
-  },
-  {
-    number: "03",
-    action: "Learn",
-    title: "Shared systems",
-    status: "Being built",
-    logo: "/brands/growkong-group.svg",
-    body: "Product, audience, revenue, and operating intelligence stay inside the group and make the next decision sharper.",
+    linkLabel: "View product",
   },
 ];
 
@@ -56,6 +70,34 @@ const contextLinks = [
   ["Context", "People, history, and constraints"],
   ["Assistant", "One operating layer"],
 ];
+
+function VentureCard({ venture }: { venture: Venture }) {
+  return (
+    <a
+      className={`venture-card ${venture.tone}`}
+      href={venture.href}
+      target="_blank"
+      rel="noreferrer"
+    >
+      <div className="venture-card-top">
+        <span>{venture.code}</span>
+        <span className="status">
+          <i />
+          {venture.status}
+        </span>
+      </div>
+      <div className="venture-identity">
+        <div className="venture-logo">
+          <img src={venture.logo} alt="" width="64" height="64" />
+        </div>
+        <p>{venture.label}</p>
+        <h3>{venture.name}</h3>
+      </div>
+      <p className="venture-description">{venture.description}</p>
+      <span className="venture-link">{venture.linkLabel} ↗</span>
+    </a>
+  );
+}
 
 export default function Home() {
   const personSchema = {
@@ -152,83 +194,43 @@ export default function Home() {
             </p>
           </div>
 
-          <a
-            className="group-panel"
-            href="https://group.growkong.com"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <div className="group-panel-top">
-              <img
-                src="/brands/growkong-group.svg"
-                alt=""
-                width="68"
-                height="68"
-              />
-              <span className="status active">
-                <i />
-                Building now
-              </span>
-            </div>
-            <div className="group-panel-copy">
-              <p>GROWKONG / GROUP</p>
-              <h3>Build. Distribute. Learn. Scale.</h3>
-            </div>
-            <span className="outbound" aria-hidden="true">
-              ↗
-            </span>
-          </a>
-
-          <div className="system-grid">
-            {systemStages.map((stage) => (
-              <article className="system-card" key={stage.number}>
-                <div className="system-card-head">
-                  <span>{stage.number}</span>
-                  <img src={stage.logo} alt="" width="38" height="38" />
-                </div>
-                <p className="system-action">{stage.action}</p>
-                <h3>{stage.title}</h3>
-                <p className="system-status">{stage.status}</p>
-                <p className="system-body">{stage.body}</p>
-              </article>
+          <div className="venture-grid primary-ventures">
+            {groupCompanies.map((venture) => (
+              <VentureCard venture={venture} key={venture.name} />
             ))}
           </div>
+
+          <article className="foundry-step">
+            <div className="foundry-step-index">
+              <span>03</span>
+              <img
+                src="/brands/growkong-foundry.svg"
+                alt=""
+                width="44"
+                height="44"
+              />
+            </div>
+            <div className="foundry-step-copy">
+              <p>Next layer · Product creation</p>
+              <h3>GrowKong Foundry</h3>
+              <span>
+                A product foundry for turning focused customer problems into
+                working software and independent businesses.
+              </span>
+            </div>
+            <div className="foundry-step-status">
+              <i />
+              In development
+            </div>
+          </article>
 
           <div className="products-header">
             <p className="eyebrow">Products in market</p>
             <p>First-party products built inside the group.</p>
           </div>
-          <div className="product-grid">
-            {products.map((product) => (
-              <a
-                className={`product-card ${product.tone}`}
-                href={product.href}
-                target="_blank"
-                rel="noreferrer"
-                key={product.name}
-              >
-                <div className="product-card-top">
-                  <span>{product.code}</span>
-                  <span className="status">
-                    <i />
-                    {product.status}
-                  </span>
-                </div>
-                <div className="product-identity">
-                  <div className="product-logo">
-                    <img
-                      src={product.logo}
-                      alt=""
-                      width="64"
-                      height="64"
-                    />
-                  </div>
-                  <p>{product.label}</p>
-                  <h3>{product.name}</h3>
-                </div>
-                <p className="product-description">{product.description}</p>
-                <span className="product-link">View product ↗</span>
-              </a>
+          <div className="venture-grid">
+            {products.map((venture) => (
+              <VentureCard venture={venture} key={venture.name} />
             ))}
           </div>
         </div>

@@ -38,7 +38,12 @@ test("server-renders the founder profile", async () => {
     /<title>Vlad Budko — Co-founder &amp; CEO, GrowKong Group<\/title>/i,
   );
   assert.match(html, /I build software companies/);
+  assert.match(html, /href="https:\/\/group\.growkong\.com"/);
+  assert.match(html, /href="https:\/\/growkong\.com"/);
   assert.match(html, /GrowKong Network/);
+  assert.match(html, /GrowKong Foundry/);
+  assert.match(html, /Next layer · Product creation/);
+  assert.doesNotMatch(html, /Shared systems/);
   assert.match(html, /Context OS/);
   assert.match(html, /Successful exit through an equity sale/);
   assert.match(html, /I got these wrong/);
