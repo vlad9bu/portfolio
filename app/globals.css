@@ -430,16 +430,6 @@ a:hover > .outbound {
   display: block;
 }
 
-.venture-card.group .venture-logo,
-.venture-card.network .venture-logo {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.venture-card.group .venture-logo img,
-.venture-card.network .venture-logo img {
-  filter: brightness(0) invert(1);
-}
-
 .venture-identity p {
   font-size: 9px;
   font-weight: 700;
@@ -516,6 +506,7 @@ a:hover > .outbound {
 
 .foundry-step-logo {
   align-items: center;
+  background: rgba(255, 255, 255, 0.7);
   display: flex;
   height: 84px;
   justify-content: center;
