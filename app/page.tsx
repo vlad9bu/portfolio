@@ -203,12 +203,14 @@ export default function Home() {
           <article className="foundry-step">
             <div className="foundry-step-index">
               <span>03</span>
-              <img
-                src="/brands/growkong-foundry.svg"
-                alt=""
-                width="44"
-                height="44"
-              />
+              <div className="foundry-step-logo">
+                <img
+                  src="/brands/growkong-foundry.svg"
+                  alt=""
+                  width="64"
+                  height="64"
+                />
+              </div>
             </div>
             <div className="foundry-step-copy">
               <p>Next layer · Product creation</p>
