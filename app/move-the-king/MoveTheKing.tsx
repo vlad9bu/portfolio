@@ -459,25 +459,32 @@ export default function MoveTheKing() {
 
       {phase === "intro" && (
         <section className={styles.intro}>
-          <h1 className={styles.visuallyHidden}>
-            Move The King — A Business Logic Game
-          </h1>
-          <div className={styles.introCover} aria-hidden="true">
-            <span className={styles.kingArtwork} />
-          </div>
-          <div className={styles.introLaunch}>
-            <div>
-              <span>Strategy experiment / Four moves</span>
-              <strong>Move The King.</strong>
+          <div className={styles.introCopy}>
+            <p>
+              <span>Strategy experiment</span>
+              <span>Four moves</span>
+            </p>
+            <h1>
+              Move
+              <br />
+              The King.
+            </h1>
+            <div className={styles.introText}>
               <p>
                 You and the AI King face the same company and choose
-                independently. See whose judgment creates the stronger result.
+                independently. Reveal both decisions and see whose judgment
+                creates the stronger result.
               </p>
+              <button type="button" onClick={startGame}>
+                Play the game
+                <span aria-hidden="true">↘</span>
+              </button>
             </div>
-            <button type="button" onClick={startGame}>
-              Play the game
-              <span aria-hidden="true">↘</span>
-            </button>
+          </div>
+          <div className={styles.kingStage} aria-hidden="true">
+            <div className={styles.kingGrid} />
+            <span className={styles.kingArtwork} />
+            <p>The opponent does not need your plan. Only your position.</p>
           </div>
         </section>
       )}
