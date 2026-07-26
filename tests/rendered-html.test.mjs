@@ -53,6 +53,9 @@ test("server-renders the focused founder profile at the main address", async () 
   assert.match(html, /Knowing when to stop is part of building/);
   assert.match(html, /MyWhy AI Therapist/);
   assert.match(html, /Restaurant photography/);
+  assert.match(html, /Can you outthink the King/);
+  assert.match(html, /04 decisions \/ AI opponent/);
+  assert.match(html, /href="\/move-the-king"/);
   assert.doesNotMatch(
     html,
     /GrowKong Network|GrowKong Foundry|PinPinMe|NoSweatKing/,

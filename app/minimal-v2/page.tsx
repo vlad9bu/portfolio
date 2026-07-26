@@ -102,6 +102,7 @@ export default function MinimalFocusEdition() {
           <a href="#record">Record</a>
           <a href="#systems">Systems</a>
           <a href="#decisions">Decisions</a>
+          <a href="#game">Game</a>
         </nav>
         <div className={styles.headerActions}>
           <MotionController />
@@ -361,6 +362,66 @@ export default function MinimalFocusEdition() {
               </p>
             </article>
           </div>
+        </div>
+      </section>
+
+      <section
+        className={`${styles.section} ${styles.gameSection}`}
+        id="game"
+      >
+        <div className={styles.sectionIndex} data-reveal>
+          <span>06</span>
+          <p>Game</p>
+        </div>
+        <div className={styles.sectionBody}>
+          <div className={styles.gameHeading} data-reveal>
+            <p>Move The King / Interactive</p>
+            <h2>Can you outthink the King?</h2>
+            <span>
+              Four business decisions. One company. You and an AI opponent
+              choose independently, then live with the consequences.
+            </span>
+          </div>
+
+          <a
+            className={styles.gameInvite}
+            href="/move-the-king"
+            data-reveal
+            data-press
+            aria-label="Play Move The King"
+          >
+            <span className={styles.gameInviteHeader}>
+              <small>Business logic game</small>
+              <small>04 decisions / AI opponent</small>
+            </span>
+
+            <span className={styles.gameArena}>
+              <span className={`${styles.gameSide} ${styles.gamePlayer}`}>
+                <small>Your move</small>
+                <strong>You</strong>
+                <span>Capital · Trust · Momentum · Leverage</span>
+              </span>
+
+              <span className={styles.gameVersus}>
+                <strong>VS</strong>
+                <small>Same company</small>
+              </span>
+
+              <span className={`${styles.gameSide} ${styles.gameKing}`}>
+                <small>Independent counter</small>
+                <strong>King</strong>
+                <span>Capital · Trust · Momentum · Leverage</span>
+              </span>
+            </span>
+
+            <span className={styles.gameInviteFooter}>
+              <span>
+                Every choice creates gains, costs, and second-order effects.
+                The better judgment compounds across four rounds.
+              </span>
+              <b>Enter the board ↗</b>
+            </span>
+          </a>
         </div>
       </section>
 

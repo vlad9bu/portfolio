@@ -1131,6 +1131,208 @@ a.systemCard:hover > b {
   transform: translateX(6px);
 }
 
+.gameSection {
+  --foreground: #f4f4ef;
+  --secondary: #a7a8a1;
+  --line: rgba(244, 244, 239, 0.2);
+  background: #10110f;
+  color: var(--foreground);
+}
+
+.gameHeading {
+  align-items: end;
+  display: grid;
+  gap: 38px;
+  grid-template-columns: minmax(180px, 0.45fr) minmax(420px, 1.2fr) minmax(
+      260px,
+      0.7fr
+    );
+  margin-bottom: 72px;
+}
+
+.gameHeading > p,
+.gameInviteHeader small,
+.gameSide small,
+.gameSide > span,
+.gameVersus small {
+  color: var(--secondary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.gameHeading > p,
+.gameHeading > span {
+  margin: 0;
+}
+
+.gameHeading h2 {
+  font-size: clamp(50px, 6vw, 110px);
+  font-weight: 700;
+  letter-spacing: -0.07em;
+  line-height: 0.86;
+  margin: 0;
+}
+
+.gameHeading > span {
+  color: var(--secondary);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.gameInvite {
+  border-bottom: 1px solid var(--foreground);
+  border-top: 1px solid var(--foreground);
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+
+.gameInvite::before {
+  background: var(--accent);
+  content: "";
+  height: 3px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transform: scaleX(0.09);
+  transform-origin: left center;
+  transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+  width: 100%;
+  z-index: 2;
+}
+
+.gameInvite:hover::before {
+  transform: scaleX(1);
+}
+
+.gameInviteHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0;
+}
+
+.gameArena {
+  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 148px minmax(0, 1fr);
+}
+
+.gameSide {
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
+  overflow: hidden;
+  padding: 26px 30px;
+  transition: background-color 420ms ease, color 420ms ease;
+}
+
+.gameSide strong {
+  font-size: clamp(42px, 7.4vw, 132px);
+  letter-spacing: -0.08em;
+  line-height: 0.8;
+  margin: auto 0;
+  text-transform: uppercase;
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gameSide > span {
+  line-height: 1.5;
+}
+
+.gameKing {
+  text-align: right;
+}
+
+.gameKing strong {
+  color: var(--accent);
+}
+
+.gameVersus {
+  align-items: center;
+  background: var(--accent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  text-align: center;
+}
+
+.gameVersus::before,
+.gameVersus::after {
+  background: rgba(255, 255, 255, 0.42);
+  content: "";
+  height: 54px;
+  position: absolute;
+  width: 1px;
+}
+
+.gameVersus::before {
+  top: 0;
+}
+
+.gameVersus::after {
+  bottom: 0;
+}
+
+.gameVersus strong {
+  color: #fff;
+  font-size: 28px;
+  letter-spacing: -0.08em;
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gameVersus small {
+  color: rgba(255, 255, 255, 0.68);
+  margin-top: 10px;
+}
+
+.gameInviteFooter {
+  align-items: center;
+  display: grid;
+  gap: 42px;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  padding: 24px 0;
+}
+
+.gameInviteFooter > span {
+  color: var(--secondary);
+  font-size: 14px;
+  line-height: 1.55;
+  max-width: 650px;
+  transition: color 280ms ease;
+}
+
+.gameInviteFooter b {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  transition: color 280ms ease, transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gameInvite:hover .gamePlayer strong {
+  transform: translateX(12px);
+}
+
+.gameInvite:hover .gameKing strong {
+  transform: translateX(-12px);
+}
+
+.gameInvite:hover .gameVersus strong {
+  transform: rotate(-8deg) scale(1.14);
+}
+
+.gameInvite:hover .gameInviteFooter > span {
+  color: var(--foreground);
+}
+
+.gameInvite:hover .gameInviteFooter b {
+  color: var(--accent);
+  transform: translate(5px, -3px);
+}
+
 .principle {
   background: var(--accent);
   color: #fff;
@@ -1306,12 +1508,14 @@ a.systemCard:hover > b {
   }
 
   .sectionHeading,
-  .recordIntro {
+  .recordIntro,
+  .gameHeading {
     grid-template-columns: 1fr 1.6fr;
   }
 
   .sectionHeading > span,
-  .recordIntro > span {
+  .recordIntro > span,
+  .gameHeading > span {
     grid-column: 2;
   }
 
@@ -1391,14 +1595,25 @@ a.systemCard:hover > b {
 
   .sectionHeading,
   .recordIntro,
-  .closedHeading {
+  .closedHeading,
+  .gameHeading {
     display: block;
   }
 
   .sectionHeading h2,
   .recordIntro h2,
-  .closedHeading h2 {
+  .closedHeading h2,
+  .gameHeading h2 {
     margin: 24px 0 30px;
+  }
+
+  .gameArena {
+    grid-template-columns: minmax(0, 1fr) 110px minmax(0, 1fr);
+  }
+
+  .gameSide {
+    min-height: 280px;
+    padding: 24px;
   }
 
   .layer {
@@ -1678,6 +1893,64 @@ a.systemCard:hover > b {
 
   .closedList h3 {
     margin: 20px 0;
+  }
+
+  .gameHeading {
+    margin-bottom: 52px;
+  }
+
+  .gameInviteHeader {
+    padding: 18px 0;
+  }
+
+  .gameInviteHeader small:last-child {
+    text-align: right;
+  }
+
+  .gameArena {
+    grid-template-columns: minmax(0, 1fr) 58px minmax(0, 1fr);
+  }
+
+  .gameSide {
+    min-height: 220px;
+    padding: 18px 12px;
+  }
+
+  .gameSide strong {
+    font-size: clamp(34px, 10.5vw, 58px);
+  }
+
+  .gameSide > span {
+    font-size: 7px;
+    letter-spacing: 0.1em;
+  }
+
+  .gameKing small {
+    text-align: right;
+  }
+
+  .gameVersus::before,
+  .gameVersus::after {
+    height: 34px;
+  }
+
+  .gameVersus strong {
+    font-size: 19px;
+  }
+
+  .gameVersus small {
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    max-width: 48px;
+  }
+
+  .gameInviteFooter {
+    display: block;
+  }
+
+  .gameInviteFooter b {
+    display: block;
+    margin-top: 24px;
   }
 
   .principle {
