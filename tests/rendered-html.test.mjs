@@ -84,7 +84,8 @@ test("server-renders the minimal comparison edition", async () => {
   assert.match(html, /View original/);
   assert.match(html, /Invert/);
   assert.match(html, /Open system map/);
-  assert.match(html, /Evidence over narratives/);
+  assert.match(html, /Nothing is impossible/);
+  assert.match(html, /Think big\. Build bigger/);
   assert.match(html, /I got these wrong/);
   assert.match(html, /https:\/\/vladbudko\.com\/og-minimal\.png/);
   assert.doesNotMatch(html, /Download Resume|Get in touch/i);

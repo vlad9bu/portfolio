@@ -356,9 +356,9 @@ export default function MinimalEdition() {
       <section className={styles.principle} data-principle>
         <span>Working principle / 2026</span>
         <blockquote data-reveal>
-          Evidence over narratives.
+          Nothing is impossible.
           <br />
-          Progress over motion.
+          Think big. Build bigger.
         </blockquote>
       </section>
 
