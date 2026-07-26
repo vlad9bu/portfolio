@@ -743,7 +743,8 @@ export default function MoveTheKing() {
                   <p>
                     Each decision score is Capital + Trust + Momentum +
                     Leverage. Round scores accumulate across all four
-                    positions; the company itself follows your path.
+                    positions; the company itself follows your path. If any
+                    company metric falls to 12 or below, the King wins.
                   </p>
                 </div>
               </li>

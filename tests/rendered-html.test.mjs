@@ -128,6 +128,7 @@ test("server-renders Move The King as a separate business logic game", async () 
     /Each decision score is Capital \+ Trust \+ Momentum \+ Leverage/,
   );
   assert.match(html, /the company itself follows your path/);
+  assert.match(html, /If any company metric falls to 12 or below/);
   assert.match(html, /og-move-the-king\.png/);
   assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9]/);
 });
