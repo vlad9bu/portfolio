@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ContextSystemCard, MotionController } from "./MinimalMotion";
 import styles from "./minimal.module.css";
 
@@ -154,9 +155,9 @@ export default function MinimalEdition() {
         </nav>
         <div className={styles.headerActions}>
           <MotionController />
-          <a href="/" className={styles.edition}>
+          <Link href="/" className={styles.edition}>
             Edition B / View original ↗
-          </a>
+          </Link>
         </div>
       </header>
 

@@ -1,18 +1,20 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-async function render(path = "/") {
+async function requestWorker(path = "/", init = {}) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
     new Request(`https://vladbudko.com${path}`, {
+      ...init,
       headers: {
         accept: "text/html",
         host: "vladbudko.com",
         "x-forwarded-host": "vladbudko.com",
         "x-forwarded-proto": "https",
+        ...init.headers,
       },
     }),
     {
@@ -25,6 +27,10 @@ async function render(path = "/") {
       passThroughOnException() {},
     },
   );
+}
+
+async function render(path = "/") {
+  return requestWorker(path);
 }
 
 test("server-renders the focused founder profile at the main address", async () => {
@@ -102,4 +108,46 @@ test("server-renders the focused minimal copy without group catalog noise", asyn
   );
   assert.doesNotMatch(html, /focused customer problems/);
   assert.doesNotMatch(html, /I got these wrong|I chose the wrong business model/);
+});
+
+test("server-renders Move The King as a separate business logic game", async () => {
+  const response = await render("/move-the-king");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /Move The King — A Business Logic Game/);
+  assert.match(html, /Every choice creates a trade-off/);
+  assert.match(html, /The King reads the board/);
+  assert.match(html, /Enter the board/);
+  assert.match(html, /og-move-the-king\.png/);
+  assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9]/);
+});
+
+test("Move The King API returns a bounded local counter without a key", async () => {
+  const response = await requestWorker("/api/move-the-king", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      origin: "https://vladbudko.com",
+    },
+    body: JSON.stringify({
+      round: 0,
+      moveId: "repair-core",
+      metrics: {
+        capital: 63,
+        trust: 72,
+        momentum: 43,
+        leverage: 44,
+      },
+      history: [],
+    }),
+  });
+
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.mode, "simulation");
+  assert.equal(typeof payload.counter.counterMove, "string");
+  assert.equal(typeof payload.counter.impact.capital, "number");
+  assert.equal(payload.model, undefined);
 });

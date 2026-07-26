@@ -379,6 +379,7 @@ export default function MinimalFocusEdition() {
           <span>Co-founder &amp; CEO / GrowKong Group</span>
         </div>
         <div>
+          <a href="/move-the-king">Move The King</a>
           <a href="mailto:vlad.b@growkong.com">Email</a>
           <a
             href="https://www.linkedin.com/in/vladyslav-budko/"

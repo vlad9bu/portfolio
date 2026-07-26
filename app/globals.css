@@ -51,6 +51,14 @@ body:has(.minimal-page)::before {
   display: none;
 }
 
+body:has(.game-page) {
+  background: #f4f4ef;
+}
+
+body:has(.game-page)::before {
+  display: none;
+}
+
 a {
   color: inherit;
   text-decoration: none;
