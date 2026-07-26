@@ -18,6 +18,12 @@ export type GameRound = {
   moves: Move[];
 };
 
+export type GameBoard = {
+  title: string;
+  thesis: string;
+  rounds: GameRound[];
+};
+
 export type CounterMove = {
   counterMove: string;
   why: string;
@@ -186,6 +192,13 @@ export const rounds: GameRound[] = [
   },
 ];
 
+export const fallbackBoard: GameBoard = {
+  title: "The durable company",
+  thesis:
+    "Four positions about growth, control, distribution, and what deserves another move.",
+  rounds,
+};
+
 export function clampMetric(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
@@ -198,10 +211,6 @@ export function applyImpact(metrics: Metrics, impact: Metrics): Metrics {
     },
     { ...metrics },
   );
-}
-
-export function findMove(round: number, moveId: string) {
-  return rounds[round]?.moves.find((move) => move.id === moveId);
 }
 
 const localCounters: Record<string, Omit<CounterMove, "signal">> = {
@@ -304,14 +313,25 @@ const localCounters: Record<string, Omit<CounterMove, "signal">> = {
 };
 
 export function getLocalCounter(
-  round: number,
-  moveId: string,
+  move: Move,
   metrics: Metrics,
 ): CounterMove {
-  const fallback = localCounters[moveId] ?? localCounters[rounds[round].moves[0].id];
   const weakest = metricKeys.reduce((current, key) =>
     metrics[key] < metrics[current] ? key : current,
   );
+  const fallback = localCounters[move.id] ?? {
+    counterMove: `The pressure moves to ${weakest}.`,
+    why:
+      `${move.title} improves the visible position, but it pushes pressure toward ${weakest}. The system has less room to absorb the next shock there.`,
+    kingLine: "Every advantage moves the weakness somewhere else.",
+    verdict: "board_shifts" as const,
+    impact: {
+      capital: weakest === "capital" ? -8 : -2,
+      trust: weakest === "trust" ? -8 : -2,
+      momentum: weakest === "momentum" ? -8 : -2,
+      leverage: weakest === "leverage" ? -8 : -2,
+    },
+  };
 
   return {
     ...fallback,

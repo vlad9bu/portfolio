@@ -120,8 +120,32 @@ test("server-renders Move The King as a separate business logic game", async () 
   assert.match(html, /Every choice creates a trade-off/);
   assert.match(html, /The King reads the board/);
   assert.match(html, /Enter the board/);
+  assert.match(html, /How to play/);
+  assert.match(html, /There is no perfect move/);
+  assert.match(html, /Keep the system alive/);
   assert.match(html, /og-move-the-king\.png/);
   assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9]/);
+});
+
+test("Move The King board API keeps a complete fallback deck without a key", async () => {
+  const response = await requestWorker("/api/move-the-king/board", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      origin: "https://vladbudko.com",
+    },
+    body: "{}",
+  });
+
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.mode, "simulation");
+  assert.equal(payload.board.rounds.length, 4);
+  assert.equal(
+    payload.board.rounds.every((round) => round.moves.length === 3),
+    true,
+  );
+  assert.equal(payload.model, undefined);
 });
 
 test("Move The King API returns a bounded local counter without a key", async () => {
@@ -132,8 +156,27 @@ test("Move The King API returns a bounded local counter without a key", async ()
       origin: "https://vladbudko.com",
     },
     body: JSON.stringify({
-      round: 0,
-      moveId: "repair-core",
+      roundIndex: 0,
+      round: {
+        title: "Traction arrived before retention.",
+        situation:
+          "A focused B2B product reaches $18K MRR in six months. New accounts keep arriving, but monthly logo churn has climbed to 9%.",
+        pressure:
+          "The board rewards visible momentum. The product is quietly leaking trust.",
+      },
+      move: {
+        id: "repair-core",
+        title: "Slow acquisition. Repair retention.",
+        detail:
+          "Put the growth story on hold and spend one cycle fixing activation, onboarding, and the weakest workflow.",
+        principle: "Protect the base",
+        impact: {
+          capital: -5,
+          trust: 11,
+          momentum: -5,
+          leverage: 7,
+        },
+      },
       metrics: {
         capital: 63,
         trust: 72,

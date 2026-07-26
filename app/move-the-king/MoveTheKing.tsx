@@ -1,24 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   applyImpact,
+  fallbackBoard,
   gameResult,
   getLocalCounter,
   initialMetrics,
   metricKeys,
-  rounds,
   type CounterMove,
+  type GameBoard,
   type Metrics,
   type TurnHistory,
 } from "./game";
 import styles from "./move-the-king.module.css";
 
-type Phase = "intro" | "turn" | "thinking" | "counter" | "complete";
+type Phase =
+  | "intro"
+  | "generating"
+  | "turn"
+  | "thinking"
+  | "counter"
+  | "complete";
+type HelpPhase = "open" | "closing" | "closed" | "opening";
 
 type CounterResponse = {
   counter: CounterMove;
+  mode: "ai" | "simulation";
+  model?: string;
+};
+
+type BoardResponse = {
+  board: GameBoard;
   mode: "ai" | "simulation";
   model?: string;
 };
@@ -67,29 +87,150 @@ function ImpactList({ impact }: { impact: Metrics }) {
 
 export default function MoveTheKing() {
   const [phase, setPhase] = useState<Phase>("intro");
+  const [gameBoard, setGameBoard] = useState<GameBoard>(fallbackBoard);
   const [roundIndex, setRoundIndex] = useState(0);
   const [metrics, setMetrics] = useState<Metrics>(initialMetrics);
   const [selectedMoveId, setSelectedMoveId] = useState<string | null>(null);
   const [counter, setCounter] = useState<CounterMove | null>(null);
   const [history, setHistory] = useState<TurnHistory[]>([]);
   const [engine, setEngine] = useState<"ai" | "simulation" | null>(null);
+  const [boardEngine, setBoardEngine] = useState<
+    "ai" | "simulation" | null
+  >(null);
   const [lastPlayerImpact, setLastPlayerImpact] = useState<Metrics | null>(null);
+  const [helpPhase, setHelpPhase] = useState<HelpPhase>("open");
+  const [helpPulse, setHelpPulse] = useState(false);
+  const helpPanelRef = useRef<HTMLDivElement>(null);
+  const helpButtonRef = useRef<HTMLButtonElement>(null);
+  const helpCloseRef = useRef<HTMLButtonElement>(null);
+  const helpTimerRef = useRef<number | null>(null);
 
-  const round = rounds[roundIndex];
+  const round = gameBoard.rounds[roundIndex] ?? fallbackBoard.rounds[0];
   const selectedMove = useMemo(
     () => round.moves.find((move) => move.id === selectedMoveId) ?? null,
     [round, selectedMoveId],
   );
   const result = gameResult(metrics);
 
-  const startGame = () => {
+  const setGenieOffset = () => {
+    const panel = helpPanelRef.current;
+    const button = helpButtonRef.current;
+    if (!panel || !button) return;
+
+    const panelRect = panel.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    const x =
+      buttonRect.left +
+      buttonRect.width / 2 -
+      (panelRect.left + panelRect.width / 2);
+    const y =
+      buttonRect.top +
+      buttonRect.height / 2 -
+      (panelRect.top + panelRect.height / 2);
+
+    panel.style.setProperty("--genie-x", `${x}px`);
+    panel.style.setProperty("--genie-y", `${y}px`);
+  };
+
+  useLayoutEffect(() => {
+    if (helpPhase !== "opening") return;
+    setGenieOffset();
+  }, [helpPhase]);
+
+  const closeHelp = () => {
+    if (helpPhase === "closing" || helpPhase === "closed") return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setHelpPhase("closed");
+      helpButtonRef.current?.focus();
+      return;
+    }
+
+    setGenieOffset();
+    setHelpPhase("closing");
+    helpTimerRef.current = window.setTimeout(() => {
+      setHelpPhase("closed");
+      setHelpPulse(true);
+      helpButtonRef.current?.focus();
+      helpTimerRef.current = window.setTimeout(
+        () => setHelpPulse(false),
+        1150,
+      );
+    }, 720);
+  };
+
+  const openHelp = () => {
+    if (helpPhase !== "closed") return;
+    setHelpPulse(false);
+    setHelpPhase("opening");
+    helpTimerRef.current = window.setTimeout(() => {
+      setHelpPhase("open");
+    }, 680);
+  };
+
+  useEffect(() => {
+    if (helpPhase === "closed") return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    if (helpPhase === "open") helpCloseRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [helpPhase]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && helpPhase === "open") closeHelp();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
+  useEffect(
+    () => () => {
+      if (helpTimerRef.current) window.clearTimeout(helpTimerRef.current);
+    },
+    [],
+  );
+
+  const startGame = async () => {
     setRoundIndex(0);
     setMetrics(initialMetrics);
     setSelectedMoveId(null);
     setCounter(null);
     setHistory([]);
     setEngine(null);
+    setBoardEngine(null);
     setLastPlayerImpact(null);
+    setPhase("generating");
+
+    const minimumBoardTime = new Promise((resolve) =>
+      window.setTimeout(resolve, 950),
+    );
+    let response: BoardResponse = {
+      board: fallbackBoard,
+      mode: "simulation",
+    };
+
+    try {
+      const boardRequest = fetch("/api/move-the-king/board", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      }).then(async (result) => {
+        if (!result.ok) throw new Error("The king could not set the board.");
+        return (await result.json()) as BoardResponse;
+      });
+      response = await boardRequest;
+    } catch {
+      // The original board remains available if AI generation is unavailable.
+    }
+
+    await minimumBoardTime;
+    setGameBoard(response.board);
+    setBoardEngine(response.mode);
     setPhase("turn");
   };
 
@@ -106,7 +247,7 @@ export default function MoveTheKing() {
     setPhase("thinking");
 
     let response: CounterResponse = {
-      counter: getLocalCounter(roundIndex, selectedMove.id, metricsAfterMove),
+      counter: getLocalCounter(selectedMove, metricsAfterMove),
       mode: "simulation",
     };
 
@@ -115,8 +256,13 @@ export default function MoveTheKing() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          round: roundIndex,
-          moveId: selectedMove.id,
+          roundIndex,
+          round: {
+            title: round.title,
+            situation: round.situation,
+            pressure: round.pressure,
+          },
+          move: selectedMove,
           metrics: metricsAfterMove,
           history,
         }),
@@ -151,7 +297,7 @@ export default function MoveTheKing() {
   };
 
   const continueGame = () => {
-    if (roundIndex === rounds.length - 1) {
+    if (roundIndex === gameBoard.rounds.length - 1) {
       setPhase("complete");
       return;
     }
@@ -171,14 +317,23 @@ export default function MoveTheKing() {
         </Link>
         <span>Move The King</span>
         <div>
-          <small>{phase === "intro" ? "Business logic game" : "Position"}</small>
+          <small>
+            {phase === "intro"
+              ? "Business logic game"
+              : phase === "generating"
+                ? "New board"
+                : "Position"}
+          </small>
           <strong>
             {phase === "intro"
               ? "AI / 01"
-              : `${String(Math.min(roundIndex + 1, rounds.length)).padStart(
-                  2,
-                  "0",
-                )} / ${String(rounds.length).padStart(2, "0")}`}
+              : phase === "generating"
+                ? "AI / …"
+                : `${String(
+                    Math.min(roundIndex + 1, gameBoard.rounds.length),
+                  ).padStart(2, "0")} / ${String(
+                    gameBoard.rounds.length,
+                  ).padStart(2, "0")}`}
           </strong>
         </div>
       </header>
@@ -215,7 +370,24 @@ export default function MoveTheKing() {
         </section>
       )}
 
-      {phase !== "intro" && phase !== "complete" && (
+      {phase === "generating" && (
+        <section className={styles.generating} aria-live="polite" aria-busy>
+          <div className={styles.generatingPiece} aria-hidden="true">
+            ♚
+          </div>
+          <div className={styles.generatingCopy}>
+            <span>New game / new position</span>
+            <h1>The King is setting the board.</h1>
+            <p>
+              Building four linked business situations and twelve imperfect
+              moves. A fresh position for this run.
+            </p>
+            <i aria-hidden="true" />
+          </div>
+        </section>
+      )}
+
+      {["turn", "thinking", "counter"].includes(phase) && (
         <>
           <MetricBoard metrics={metrics} />
 
@@ -324,7 +496,7 @@ export default function MoveTheKing() {
                       </div>
                     )}
                     <button type="button" onClick={continueGame}>
-                      {roundIndex === rounds.length - 1
+                      {roundIndex === gameBoard.rounds.length - 1
                         ? "Resolve the board"
                         : "Next position"}
                       <span aria-hidden="true">→</span>
@@ -367,12 +539,104 @@ export default function MoveTheKing() {
         </section>
       )}
 
+      <button
+        aria-expanded={helpPhase !== "closed"}
+        aria-label="Open how to play"
+        className={styles.helpButton}
+        data-pulse={helpPulse ? "true" : "false"}
+        onClick={openHelp}
+        ref={helpButtonRef}
+        type="button"
+      >
+        <span aria-hidden="true">?</span>
+        <strong>How to play</strong>
+      </button>
+
+      {helpPhase !== "closed" && (
+        <div
+          className={styles.helpOverlay}
+          data-state={helpPhase}
+          role="presentation"
+        >
+          <div
+            aria-labelledby="how-to-play-title"
+            aria-modal="true"
+            className={styles.helpPanel}
+            data-state={helpPhase}
+            ref={helpPanelRef}
+            role="dialog"
+          >
+            <div className={styles.helpTop}>
+              <span>Before the first move</span>
+              <button
+                aria-label="Close how to play"
+                onClick={closeHelp}
+                ref={helpCloseRef}
+                type="button"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div className={styles.helpIntro}>
+              <small>Move The King / rules</small>
+              <h2 id="how-to-play-title">How to play.</h2>
+              <p>
+                There is no perfect move. Your job is to protect the whole
+                system while the AI attacks what you leave exposed.
+              </p>
+            </div>
+            <ol className={styles.helpSteps}>
+              <li>
+                <span>01</span>
+                <div>
+                  <strong>Read the position</strong>
+                  <p>Notice the pressure behind the obvious opportunity.</p>
+                </div>
+              </li>
+              <li>
+                <span>02</span>
+                <div>
+                  <strong>Choose one move</strong>
+                  <p>
+                    Every option trades Capital, Trust, Momentum, and Leverage.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>03</span>
+                <div>
+                  <strong>Face the counter</strong>
+                  <p>
+                    The AI King creates the second-order consequence of your
+                    choice.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <span>04</span>
+                <div>
+                  <strong>Keep the system alive</strong>
+                  <p>Carry all four metrics through four changing positions.</p>
+                </div>
+              </li>
+            </ol>
+            <div className={styles.helpFoot}>
+              <span>Close this guide any time.</span>
+              <strong>
+                It lives here
+                <span aria-hidden="true">↘</span>
+              </strong>
+            </div>
+          </div>
+        </div>
+      )}
+
       <footer className={styles.footer}>
         <span>Vlad Budko / 2026</span>
         <span>
-          {engine === "ai"
-            ? "Opponent: GPT-5.4 mini"
-            : "Opponent: local strategy engine"}
+          {boardEngine === "ai" || engine === "ai"
+            ? "Board & opponent: GPT-5.4 mini"
+            : "Board & opponent: local strategy engine"}
         </span>
         <Link href="/">Exit game</Link>
       </footer>
