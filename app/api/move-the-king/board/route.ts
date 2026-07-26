@@ -23,6 +23,8 @@ const requestWindow = new Map<string, { count: number; resetAt: number }>();
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_REQUESTS = 8;
 
+export const maxDuration = 60;
+
 const metricSchema = {
   type: "object",
   additionalProperties: false,
@@ -291,7 +293,7 @@ export async function POST(request: Request) {
     "Each move must gain at least one metric and lose at least one metric. No move may dominate another across all four metrics. Keep the highest and lowest total decision scores within 10 points.",
     "For each move, write a hidden outcome that explains the causal chain behind its four metric impacts, covering the main gain and the main cost without inventing facts beyond the situation.",
     "Use realistic choices involving product, distribution, people, capital, trust, timing, or control. Avoid trivia, jargon, named real companies, personal data, illegal activity, politics, and financial trading.",
-    "Write in sharp English. Title under 8 words; thesis under 24 words; round title under 10 words; situation under 85 words; pressure under 32 words; move title under 9 words; detail under 42 words; principle under 5 words; outcome under 48 words.",
+    "Write in sharp English. Title under 8 words; thesis under 22 words; round title under 9 words; situation under 70 words; pressure under 26 words; move title under 8 words; detail under 36 words; principle under 5 words; outcome under 38 words.",
     "Metric impacts are integers from -12 to 12 for capital, trust, momentum, and leverage.",
     "Return only the required structured response.",
   ].join(" ");
@@ -315,7 +317,7 @@ export async function POST(request: Request) {
         model,
         store: false,
         reasoning: { effort: "medium" },
-        max_output_tokens: 3000,
+        max_output_tokens: 6000,
         instructions,
         input,
         text: {
@@ -328,7 +330,7 @@ export async function POST(request: Request) {
           },
         },
       }),
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(50_000),
     });
 
     if (!response.ok) return jsonResponse(fallbackBoard, "simulation");
