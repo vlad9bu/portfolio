@@ -316,8 +316,8 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model,
         store: false,
-        reasoning: { effort: "low" },
-        max_output_tokens: 420,
+        reasoning: { effort: "medium" },
+        max_output_tokens: 520,
         instructions,
         input,
         text: {
@@ -330,7 +330,7 @@ export async function POST(request: Request) {
           },
         },
       }),
-      signal: AbortSignal.timeout(16_000),
+      signal: AbortSignal.timeout(20_000),
     });
 
     if (!response.ok) return jsonResponse(fallback, "simulation");

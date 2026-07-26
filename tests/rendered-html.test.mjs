@@ -151,6 +151,23 @@ test("Move The King board API keeps a complete fallback deck without a key", asy
     payload.board.rounds.every((round) => round.moves.length === 3),
     true,
   );
+  assert.equal(
+    payload.board.rounds.every((round) =>
+      round.moves.every(
+        (move) => typeof move.outcome === "string" && move.outcome.length > 20,
+      ),
+    ),
+    true,
+  );
+  assert.equal(
+    payload.board.rounds.every((round) => {
+      const scores = round.moves.map((move) =>
+        Object.values(move.impact).reduce((total, value) => total + value, 0),
+      );
+      return Math.max(...scores) - Math.min(...scores) <= 10;
+    }),
+    true,
+  );
   assert.equal(payload.model, undefined);
 });
 
@@ -211,5 +228,59 @@ test("Move The King API chooses independently without a key", async () => {
   assert.equal(typeof payload.choice.why, "string");
   assert.equal(typeof payload.choice.kingLine, "string");
   assert.equal("impact" in payload.choice, false);
+  assert.equal(payload.model, undefined);
+});
+
+test("Move The King conclusion API explains the finished game without a key", async () => {
+  const history = Array.from({ length: 4 }, (_, round) => ({
+    round,
+    situation: `Founder decision under uncertainty in round ${round + 1}.`,
+    pressure: "Timing, capital, and control cannot all be protected.",
+    userMove: {
+      id: `user-${round}`,
+      title: `User move ${round + 1}`,
+      detail: "Gain speed now while accepting a concrete operating risk.",
+      principle: "Take the window",
+      impact: { capital: -5, trust: 2, momentum: 7, leverage: 1 },
+      outcome:
+        "The move creates momentum, but it spends capital and leaves only modest operating leverage.",
+    },
+    kingMove: {
+      id: `king-${round}`,
+      title: `King move ${round + 1}`,
+      detail: "Build control now while accepting slower visible progress.",
+      principle: "Protect control",
+      impact: { capital: -2, trust: 3, momentum: 2, leverage: 5 },
+      outcome:
+        "The move sacrifices some speed to preserve capital and build repeatable operating leverage.",
+    },
+    youScore: 5,
+    kingScore: 8,
+  }));
+  const response = await requestWorker("/api/move-the-king/conclusion", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      origin: "https://vladbudko.com",
+    },
+    body: JSON.stringify({
+      history,
+      metrics: {
+        capital: 48,
+        trust: 69,
+        momentum: 76,
+        leverage: 41,
+      },
+    }),
+  });
+
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.mode, "simulation");
+  assert.equal(typeof payload.conclusion.headline, "string");
+  assert.equal(typeof payload.conclusion.overview, "string");
+  assert.equal(typeof payload.conclusion.userPattern, "string");
+  assert.equal(typeof payload.conclusion.kingPattern, "string");
+  assert.equal(typeof payload.conclusion.turningPoint, "string");
   assert.equal(payload.model, undefined);
 });

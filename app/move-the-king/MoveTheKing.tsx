@@ -13,6 +13,7 @@ import {
   applyImpact,
   fallbackBoard,
   gameResult,
+  getLocalConclusion,
   getLocalKingChoice,
   getRoundOutcome,
   initialDuelScore,
@@ -20,10 +21,11 @@ import {
   metricKeys,
   type DuelScore,
   type GameBoard,
+  type GameConclusion,
+  type GameTurnRecord,
   type KingChoice,
   type Metrics,
   type RoundOutcome,
-  type TurnHistory,
 } from "./game";
 import styles from "./move-the-king.module.css";
 
@@ -33,6 +35,7 @@ type Phase =
   | "turn"
   | "thinking"
   | "counter"
+  | "resolving"
   | "complete";
 type HelpPhase = "open" | "closing" | "closed" | "opening";
 
@@ -48,9 +51,10 @@ type BoardResponse = {
   model?: string;
 };
 
-type GameTurnHistory = TurnHistory & {
-  youScore: number;
-  kingScore: number;
+type ConclusionResponse = {
+  conclusion: GameConclusion;
+  mode: "ai" | "simulation";
+  model?: string;
 };
 
 const metricLabels: Record<keyof Metrics, string> = {
@@ -135,11 +139,18 @@ export default function MoveTheKing() {
   const [metrics, setMetrics] = useState<Metrics>(initialMetrics);
   const [selectedMoveId, setSelectedMoveId] = useState<string | null>(null);
   const [kingChoice, setKingChoice] = useState<KingChoice | null>(null);
-  const [history, setHistory] = useState<GameTurnHistory[]>([]);
+  const [history, setHistory] = useState<GameTurnRecord[]>([]);
   const [duelScore, setDuelScore] = useState<DuelScore>(initialDuelScore);
   const [roundOutcome, setRoundOutcome] = useState<RoundOutcome | null>(null);
+  const [conclusion, setConclusion] = useState<GameConclusion | null>(null);
+  const [expandedOutcome, setExpandedOutcome] = useState<
+    "you" | "king" | null
+  >(null);
   const [engine, setEngine] = useState<"ai" | "simulation" | null>(null);
   const [boardEngine, setBoardEngine] = useState<
+    "ai" | "simulation" | null
+  >(null);
+  const [conclusionEngine, setConclusionEngine] = useState<
     "ai" | "simulation" | null
   >(null);
   const [lastPlayerImpact, setLastPlayerImpact] = useState<Metrics | null>(null);
@@ -253,8 +264,11 @@ export default function MoveTheKing() {
     setHistory([]);
     setDuelScore(initialDuelScore);
     setRoundOutcome(null);
+    setConclusion(null);
+    setExpandedOutcome(null);
     setEngine(null);
     setBoardEngine(null);
+    setConclusionEngine(null);
     setLastPlayerImpact(null);
     setPhase("generating");
 
@@ -320,7 +334,11 @@ export default function MoveTheKing() {
             })),
           },
           metrics,
-          history,
+          history: history.map(({ round, userMove, kingMove }) => ({
+            round,
+            userMove: userMove.title,
+            kingMove: kingMove.title,
+          })),
         }),
       }).then(async (result) => {
         if (!result.ok) throw new Error("The king declined the move.");
@@ -350,8 +368,10 @@ export default function MoveTheKing() {
       ...current,
       {
         round: roundIndex,
-        userMove: selectedMove.title,
-        kingMove: chosenKingMove.title,
+        situation: round.situation,
+        pressure: round.pressure,
+        userMove: selectedMove,
+        kingMove: chosenKingMove,
         youScore: outcome.youScore,
         kingScore: outcome.kingScore,
       },
@@ -359,8 +379,38 @@ export default function MoveTheKing() {
     setPhase("counter");
   };
 
-  const continueGame = () => {
+  const continueGame = async () => {
     if (roundIndex === gameBoard.rounds.length - 1) {
+      setExpandedOutcome(null);
+      setPhase("resolving");
+      const minimumAnalysisTime = new Promise((resolve) =>
+        window.setTimeout(resolve, 850),
+      );
+      let response: ConclusionResponse = {
+        conclusion: getLocalConclusion(history, duelScore, metrics),
+        mode: "simulation",
+      };
+
+      try {
+        const request = fetch("/api/move-the-king/conclusion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            history,
+            metrics,
+          }),
+        }).then(async (result) => {
+          if (!result.ok) throw new Error("The analysis could not be completed.");
+          return (await result.json()) as ConclusionResponse;
+        });
+        response = await request;
+      } catch {
+        // The evidence-based local conclusion remains available without AI.
+      }
+
+      await minimumAnalysisTime;
+      setConclusion(response.conclusion);
+      setConclusionEngine(response.mode);
       setPhase("complete");
       return;
     }
@@ -368,6 +418,7 @@ export default function MoveTheKing() {
     setRoundIndex((current) => current + 1);
     setSelectedMoveId(null);
     setKingChoice(null);
+    setExpandedOutcome(null);
     setLastPlayerImpact(null);
     setRoundOutcome(null);
     setPhase("turn");
@@ -386,6 +437,8 @@ export default function MoveTheKing() {
               ? "Business logic game"
               : phase === "generating"
                 ? "New board"
+                : phase === "resolving"
+                  ? "Post-game analysis"
                 : "Position"}
           </small>
           <strong>
@@ -393,6 +446,8 @@ export default function MoveTheKing() {
               ? "AI / 01"
               : phase === "generating"
                 ? "AI / …"
+                : phase === "resolving"
+                  ? "AI / …"
                 : `${String(
                     Math.min(roundIndex + 1, gameBoard.rounds.length),
                   ).padStart(2, "0")} / ${String(
@@ -445,6 +500,23 @@ export default function MoveTheKing() {
             <p>
               Building four linked business situations and twelve imperfect
               moves. A fresh position for this run.
+            </p>
+            <i aria-hidden="true" />
+          </div>
+        </section>
+      )}
+
+      {phase === "resolving" && (
+        <section className={styles.generating} aria-live="polite" aria-busy>
+          <div className={styles.generatingPiece} aria-hidden="true">
+            ♚
+          </div>
+          <div className={styles.generatingCopy}>
+            <span>Four moves / one pattern</span>
+            <h1>The King is reading the game.</h1>
+            <p>
+              Comparing the trade-offs, score gaps, and the decision that
+              changed the final result.
             </p>
             <i aria-hidden="true" />
           </div>
@@ -565,6 +637,30 @@ export default function MoveTheKing() {
                               {formatImpact(roundOutcome.youScore)}
                             </strong>
                           </div>
+                          <button
+                            aria-expanded={expandedOutcome === "you"}
+                            aria-controls={`outcome-you-${round.code}`}
+                            className={styles.outcomeToggle}
+                            onClick={() =>
+                              setExpandedOutcome((current) =>
+                                current === "you" ? null : "you",
+                              )
+                            }
+                            type="button"
+                          >
+                            Why these numbers?
+                            <span aria-hidden="true">
+                              {expandedOutcome === "you" ? "−" : "+"}
+                            </span>
+                          </button>
+                          {expandedOutcome === "you" && (
+                            <p
+                              className={styles.decisionOutcome}
+                              id={`outcome-you-${round.code}`}
+                            >
+                              {selectedMove.outcome}
+                            </p>
+                          )}
                         </div>
                         <div className={styles.exchangeVs} aria-hidden="true">
                           <span>VS</span>
@@ -581,6 +677,39 @@ export default function MoveTheKing() {
                               {formatImpact(roundOutcome.kingScore)}
                             </strong>
                           </div>
+                          {selectedMove.id === kingMove.id ? (
+                            <p className={styles.sharedOutcome}>
+                              Same decision. The consequence and score are
+                              shared.
+                            </p>
+                          ) : (
+                            <>
+                              <button
+                                aria-expanded={expandedOutcome === "king"}
+                                aria-controls={`outcome-king-${round.code}`}
+                                className={styles.outcomeToggle}
+                                onClick={() =>
+                                  setExpandedOutcome((current) =>
+                                    current === "king" ? null : "king",
+                                  )
+                                }
+                                type="button"
+                              >
+                                Why these numbers?
+                                <span aria-hidden="true">
+                                  {expandedOutcome === "king" ? "−" : "+"}
+                                </span>
+                              </button>
+                              {expandedOutcome === "king" && (
+                                <p
+                                  className={styles.decisionOutcome}
+                                  id={`outcome-king-${round.code}`}
+                                >
+                                  {kingMove.outcome}
+                                </p>
+                              )}
+                            </>
+                          )}
                         </div>
                         <div className={styles.roundResult}>
                           <div className={styles.roundResultTitle}>
@@ -638,6 +767,29 @@ export default function MoveTheKing() {
             <h1>{result.title}</h1>
             <p>{result.detail}</p>
             <DuelBoard score={duelScore} roundsPlayed={history.length} />
+            {conclusion && (
+              <div className={styles.conclusion}>
+                <div className={styles.conclusionLead}>
+                  <span>Post-game analysis</span>
+                  <h2>{conclusion.headline}</h2>
+                  <p>{conclusion.overview}</p>
+                </div>
+                <div className={styles.conclusionGrid}>
+                  <article>
+                    <small>01 / Your pattern</small>
+                    <p>{conclusion.userPattern}</p>
+                  </article>
+                  <article>
+                    <small>02 / The King&apos;s edge</small>
+                    <p>{conclusion.kingPattern}</p>
+                  </article>
+                  <article>
+                    <small>03 / Turning point</small>
+                    <p>{conclusion.turningPoint}</p>
+                  </article>
+                </div>
+              </div>
+            )}
             <MetricBoard metrics={metrics} />
             <div className={styles.completeActions}>
               <button onClick={startGame} type="button">
@@ -651,8 +803,8 @@ export default function MoveTheKing() {
             {history.map((turn) => (
               <article key={turn.round}>
                 <small>0{turn.round + 1}</small>
-                <p>{turn.userMove}</p>
-                <strong>{turn.kingMove}</strong>
+                <p>{turn.userMove.title}</p>
+                <strong>{turn.kingMove.title}</strong>
                 <span>
                   You {formatImpact(turn.youScore)} / King{" "}
                   {formatImpact(turn.kingScore)}
@@ -763,7 +915,9 @@ export default function MoveTheKing() {
       <footer className={styles.footer}>
         <span>Vlad Budko / 2026</span>
         <span>
-          {boardEngine === "ai" || engine === "ai"
+          {boardEngine === "ai" ||
+          engine === "ai" ||
+          conclusionEngine === "ai"
             ? "Board & opponent: GPT-5.4 mini"
             : "Board & opponent: local strategy engine"}
         </span>

@@ -64,8 +64,9 @@ const outputSchema = {
                 detail: { type: "string" },
                 principle: { type: "string" },
                 impact: metricSchema,
+                outcome: { type: "string" },
               },
-              required: ["title", "detail", "principle", "impact"],
+              required: ["title", "detail", "principle", "impact", "outcome"],
             },
           },
         },
@@ -120,6 +121,29 @@ function cleanImpact(value: unknown): Metrics | null {
   return impact;
 }
 
+function decisionScore(impact: Metrics) {
+  return metricKeys.reduce((total, key) => total + impact[key], 0);
+}
+
+function dominates(first: Metrics, second: Metrics) {
+  return (
+    metricKeys.every((key) => first[key] >= second[key]) &&
+    metricKeys.some((key) => first[key] > second[key])
+  );
+}
+
+function isBalancedRound(moves: Move[]) {
+  const scores = moves.map((move) => decisionScore(move.impact));
+  if (Math.max(...scores) - Math.min(...scores) > 10) return false;
+
+  return !moves.some((move, index) =>
+    moves.some(
+      (other, otherIndex) =>
+        index !== otherIndex && dominates(move.impact, other.impact),
+    ),
+  );
+}
+
 function normalizeMove(
   value: unknown,
   roundIndex: number,
@@ -131,8 +155,9 @@ function normalizeMove(
   const detail = cleanText(source.detail, 320);
   const principle = cleanText(source.principle, 72);
   const impact = cleanImpact(source.impact);
+  const outcome = cleanText(source.outcome, 420);
 
-  if (!title || !detail || !principle || !impact) return null;
+  if (!title || !detail || !principle || !impact || !outcome) return null;
 
   return {
     id: `ai-r${roundIndex + 1}-m${moveIndex + 1}`,
@@ -140,6 +165,7 @@ function normalizeMove(
     detail,
     principle,
     impact,
+    outcome,
   };
 }
 
@@ -158,13 +184,15 @@ function normalizeRound(value: unknown, roundIndex: number): GameRound | null {
   if (!title || !situation || !pressure || moves.some((move) => !move)) {
     return null;
   }
+  const normalizedMoves = moves as Move[];
+  if (!isBalancedRound(normalizedMoves)) return null;
 
   return {
     code: String(roundIndex + 1).padStart(2, "0"),
     title,
     situation,
     pressure,
-    moves: moves as Move[],
+    moves: normalizedMoves,
   };
 }
 
@@ -257,17 +285,21 @@ export async function POST(request: Request) {
   const instructions = [
     "Design one coherent four-round business strategy game called Move The King.",
     "Follow one company as its position evolves. Since all four rounds are generated before play, every later situation must remain plausible after any earlier option.",
-    "Each round must create a concrete founder-level decision under incomplete information.",
-    "Create exactly three distinct moves per round. No move is simply correct: each must gain at least one metric and lose at least one metric.",
-    "No option may dominate another across all four metrics. Keep the three total decision scores close enough that judgment matters; never create an obviously best mathematical option.",
-    "Use realistic operating choices involving product, distribution, people, capital, trust, timing, or control. Avoid trivia, jargon, named real companies, personal data, illegal activity, politics, and financial trading.",
-    "Write in sharp, concise English. Title under 8 words; thesis under 24 words; round title under 10 words; situation under 70 words; pressure under 28 words; move title under 9 words; detail under 34 words; principle under 5 words.",
+    "Make each round difficult for an experienced founder: combine two credible but conflicting truths, incomplete evidence, second-order effects, and a real timing constraint. Avoid textbook dilemmas and direct problem-to-solution matches.",
+    "Create exactly three distinct moves. Every visible detail must state both a concrete upside and a concrete risk or opportunity cost with equal rhetorical weight. Never describe one option optimistically and another defensively.",
+    "Do not signal the intended winner through words such as safe, reckless, obvious, correct, best, fatal, or doomed. The player should be able to defend any option before consequences are revealed.",
+    "Each move must gain at least one metric and lose at least one metric. No move may dominate another across all four metrics. Keep the highest and lowest total decision scores within 10 points.",
+    "For each move, write a hidden outcome that explains the causal chain behind its four metric impacts, covering the main gain and the main cost without inventing facts beyond the situation.",
+    "Use realistic choices involving product, distribution, people, capital, trust, timing, or control. Avoid trivia, jargon, named real companies, personal data, illegal activity, politics, and financial trading.",
+    "Write in sharp English. Title under 8 words; thesis under 24 words; round title under 10 words; situation under 85 words; pressure under 32 words; move title under 9 words; detail under 42 words; principle under 5 words; outcome under 48 words.",
     "Metric impacts are integers from -12 to 12 for capital, trust, momentum, and leverage.",
     "Return only the required structured response.",
   ].join(" ");
   const input = JSON.stringify({
     frame,
     variationNonce: crypto.randomUUID(),
+    challengeLevel:
+      "Experienced founder. Every option must remain defensible after a careful first read.",
     desiredArc:
       "Four linked positions that escalate from an early advantage to a final durability decision.",
   });
@@ -282,8 +314,8 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model,
         store: false,
-        reasoning: { effort: "low" },
-        max_output_tokens: 2200,
+        reasoning: { effort: "medium" },
+        max_output_tokens: 3000,
         instructions,
         input,
         text: {
@@ -296,7 +328,7 @@ export async function POST(request: Request) {
           },
         },
       }),
-      signal: AbortSignal.timeout(24_000),
+      signal: AbortSignal.timeout(30_000),
     });
 
     if (!response.ok) return jsonResponse(fallbackBoard, "simulation");

@@ -20,6 +20,7 @@ export type Move = {
   detail: string;
   principle: string;
   impact: Metrics;
+  outcome: string;
 };
 
 export type GameRound = {
@@ -48,6 +49,24 @@ export type TurnHistory = {
   round: number;
   userMove: string;
   kingMove: string;
+};
+
+export type GameTurnRecord = {
+  round: number;
+  situation: string;
+  pressure: string;
+  userMove: Move;
+  kingMove: Move;
+  youScore: number;
+  kingScore: number;
+};
+
+export type GameConclusion = {
+  headline: string;
+  overview: string;
+  userPattern: string;
+  kingPattern: string;
+  turningPoint: string;
 };
 
 export const metricKeys: MetricKey[] = [
@@ -82,25 +101,31 @@ export const rounds: GameRound[] = [
         id: "repair-core",
         title: "Slow acquisition. Repair retention.",
         detail:
-          "Put the growth story on hold and spend one cycle fixing activation, onboarding, and the weakest workflow.",
+          "Pause acquisition for one cycle to rebuild activation; churn may fall, but competitors get a clean quarter to own the category narrative.",
         principle: "Protect the base",
-        impact: { capital: -5, trust: 11, momentum: -5, leverage: 7 },
+        impact: { capital: -5, trust: 10, momentum: -5, leverage: 7 },
+        outcome:
+          "The pause buys trust and turns onboarding into reusable leverage. It also consumes cash without replacing the visible momentum surrendered during the repair cycle.",
       },
       {
         id: "expand-market",
         title: "Open the next segment.",
         detail:
-          "Use current momentum to enter a larger customer segment before competitors notice the category.",
+          "Enter larger accounts while demand is hot; contract size rises, but custom requirements arrive before retention is stable.",
         principle: "Take the window",
-        impact: { capital: -9, trust: -3, momentum: 12, leverage: 2 },
+        impact: { capital: -8, trust: -3, momentum: 12, leverage: 3 },
+        outcome:
+          "Larger accounts extend the growth curve and create some negotiating leverage. Sales effort and product exceptions spend capital while exposing an already fragile customer promise.",
       },
       {
         id: "raise-price",
         title: "Raise price. Narrow the promise.",
         detail:
-          "Accept fewer customers, increase ARPA, and make the product accountable to a more specific outcome.",
+          "Use higher ARPA to fund a narrower promise; focus improves, but the middle of the existing funnel may stop converting.",
         principle: "Trade volume for quality",
-        impact: { capital: 8, trust: 3, momentum: -3, leverage: 6 },
+        impact: { capital: 7, trust: 3, momentum: -4, leverage: 5 },
+        outcome:
+          "Higher revenue per account improves capital and sharpens the product promise. The narrower market slows near-term momentum even as focus makes future delivery more repeatable.",
       },
     ],
   },
@@ -116,25 +141,31 @@ export const rounds: GameRound[] = [
         id: "own-channel",
         title: "Build a first-party audience.",
         detail:
-          "Reduce paid volume and turn content, community, and direct relationships into operating infrastructure.",
+          "Redirect spend into content and community; owned demand may compound, but it must survive a slow start while paid volume disappears.",
         principle: "Own demand",
-        impact: { capital: -6, trust: 6, momentum: -4, leverage: 13 },
+        impact: { capital: -6, trust: 6, momentum: -4, leverage: 12 },
+        outcome:
+          "Direct relationships increase trust and create durable distribution leverage. The audience compounds slowly, so the company funds the transition while accepting a visible loss of momentum.",
       },
       {
         id: "buy-demand",
         title: "Buy the remaining inventory.",
         detail:
-          "Spend aggressively while the channel is still measurable and convert the surge into market position.",
+          "Defend share with aggressive spend while attribution still works; volume arrives now, but the auction learns exactly how much growth is worth to you.",
         principle: "Compress time",
-        impact: { capital: -13, trust: 0, momentum: 13, leverage: -5 },
+        impact: { capital: -10, trust: 2, momentum: 12, leverage: -3 },
+        outcome:
+          "Immediate reach restores momentum and repeated exposure adds modest trust. The spend drains capital and teaches the channel to price against you, reducing control over future acquisition.",
       },
       {
         id: "partner",
         title: "Trade margin for distribution.",
         detail:
-          "Give a small number of aligned partners a reason to make the product part of their own business.",
+          "Let aligned partners carry the product into their workflows; reach grows faster, but margin and part of the customer relationship move outside the company.",
         principle: "Borrow reach",
-        impact: { capital: -3, trust: 4, momentum: 7, leverage: 7 },
+        impact: { capital: -5, trust: 3, momentum: 8, leverage: 4 },
+        outcome:
+          "Partner access creates momentum and some distribution leverage without building an audience first. Shared economics cost capital, and borrowed relationships limit how much trust the company owns directly.",
       },
     ],
   },
@@ -150,25 +181,31 @@ export const rounds: GameRound[] = [
         id: "hire-operators",
         title: "Install two strong operators.",
         detail:
-          "Spend ahead of certainty, define decision rights, and give away enough control for the system to breathe.",
+          "Hire two senior operators and grant real authority; work can run in parallel, but cash and decision clarity are committed before the structure is proven.",
         principle: "Buy parallelism",
-        impact: { capital: -11, trust: 7, momentum: 6, leverage: 10 },
+        impact: { capital: -10, trust: 6, momentum: 5, leverage: 9 },
+        outcome:
+          "Clear ownership restores organizational trust, momentum, and parallel execution. Senior capacity is expensive, and the company pays before knowing whether authority boundaries will actually hold.",
       },
       {
         id: "automate",
         title: "Turn judgment into software.",
         detail:
-          "Encode recurring decisions, reporting, and context before adding another layer of management.",
+          "Encode recurring decisions before adding management; throughput improves cheaply, but today’s founder assumptions may harden into tomorrow’s operating system.",
         principle: "Systemize first",
-        impact: { capital: -5, trust: -2, momentum: 3, leverage: 13 },
+        impact: { capital: -5, trust: -3, momentum: 4, leverage: 11 },
+        outcome:
+          "Automation creates strong leverage and releases some operating speed with limited spend. Encoding unsettled judgment reduces trust when edge cases expose rules the organization never agreed on.",
       },
       {
         id: "founder-sprint",
         title: "Carry it for one more quarter.",
         detail:
-          "Protect cash and push personally through the bottleneck while the next stage becomes clearer.",
+          "Keep cash and personally carry the next quarter; deadlines land, but every successful rescue teaches the team to wait for the founder again.",
         principle: "Delay the structure",
-        impact: { capital: -2, trust: -8, momentum: 11, leverage: -8 },
+        impact: { capital: -2, trust: -6, momentum: 10, leverage: -2 },
+        outcome:
+          "Founder effort protects the quarter’s momentum without a large cash commitment. The rescue weakens institutional trust and preserves the founder as the integration layer instead of creating leverage.",
       },
     ],
   },
@@ -184,25 +221,31 @@ export const rounds: GameRound[] = [
         id: "scale",
         title: "Scale into the uncertainty.",
         detail:
-          "Commit capital, hire for the next stage, and use speed to force the operating model to mature.",
+          "Commit capital to capture the category before it closes; scale may force maturity, but it also multiplies every exception the current system still hides.",
         principle: "Earn the category",
-        impact: { capital: -13, trust: 5, momentum: 15, leverage: 7 },
+        impact: { capital: -12, trust: 3, momentum: 12, leverage: 7 },
+        outcome:
+          "Commitment creates category momentum and enough scale to improve operating leverage. Capital absorbs the unresolved exceptions, while trust improves only modestly because delivery is still being proven.",
       },
       {
         id: "hold",
         title: "Hold the size. Harden the system.",
         detail:
-          "Pause expansion until delivery, distribution, and decision-making work without heroic effort.",
+          "Pause expansion until delivery works without heroics; durability improves, but competitors gain time to define the market while you stop announcing growth.",
         principle: "Make it durable",
-        impact: { capital: 8, trust: 6, momentum: -7, leverage: 8 },
+        impact: { capital: 7, trust: 5, momentum: -6, leverage: 8 },
+        outcome:
+          "A controlled pause preserves capital, earns delivery trust, and converts repeated work into leverage. The price is lost market momentum during a window competitors can use.",
       },
       {
         id: "stop",
         title: "Close while the evidence is clean.",
         detail:
-          "Return attention and remaining capital to the system instead of forcing an unstable model to scale.",
+          "Return capital and attention before instability compounds; optionality survives, but customers and the team absorb the cost of a deliberate retreat.",
         principle: "Protect future moves",
-        impact: { capital: 12, trust: -2, momentum: -13, leverage: 11 },
+        impact: { capital: 10, trust: -3, momentum: -10, leverage: 9 },
+        outcome:
+          "Closing preserves capital and management leverage for the next opportunity. The retreat ends momentum immediately and charges trust with people who experienced a working product, not the unstable system behind it.",
       },
     ],
   },
@@ -286,6 +329,55 @@ export function getLocalKingChoice(
     why:
       `I chose “${move.title}” because it is the strongest response to the visible position from the information available.`,
     kingLine: `${move.principle} is the move I would back.`,
+  };
+}
+
+export function getLocalConclusion(
+  history: GameTurnRecord[],
+  score: DuelScore,
+  metrics: Metrics,
+): GameConclusion {
+  const decisive = history.reduce<GameTurnRecord | null>((current, turn) => {
+    if (!current) return turn;
+    const currentGap = Math.abs(current.youScore - current.kingScore);
+    const nextGap = Math.abs(turn.youScore - turn.kingScore);
+    return nextGap > currentGap ? turn : current;
+  }, null);
+  const userWins = history.filter(
+    (turn) => turn.youScore > turn.kingScore,
+  ).length;
+  const kingWins = history.filter(
+    (turn) => turn.kingScore > turn.youScore,
+  ).length;
+  const ties = history.length - userWins - kingWins;
+  const weakest = metricKeys.reduce((current, key) =>
+    metrics[key] < metrics[current] ? key : current,
+  );
+  const weakestLabel =
+    weakest.charAt(0).toUpperCase() + weakest.slice(1);
+  const result =
+    score.you === score.king
+      ? "The score tied because neither side compounded a lasting advantage."
+      : score.you > score.king
+        ? "Your choices produced the stronger combined trade-offs."
+        : "The King produced the stronger combined trade-offs.";
+
+  return {
+    headline:
+      score.you === score.king
+        ? "Same score. Different routes."
+        : score.you > score.king
+          ? "Your trade-offs compounded better."
+          : "The King gave away less.",
+    overview:
+      `${result} Your path finished with ${weakestLabel} as its lowest metric at ${metrics[weakest]}.`,
+    userPattern:
+      `You won ${userWins} round${userWins === 1 ? "" : "s"}, tied ${ties}, and scored ${score.you} overall. The largest gap shows where your visible upside carried the highest hidden cost.`,
+    kingPattern:
+      `The King won ${kingWins} round${kingWins === 1 ? "" : "s"}, tied ${ties}, and scored ${score.king}. Its edge came from choosing the cleaner total trade-off, not from damaging your company.`,
+    turningPoint: decisive
+      ? `Round ${String(decisive.round + 1).padStart(2, "0")}: “${decisive.userMove.title}” scored ${decisive.youScore}, while “${decisive.kingMove.title}” scored ${decisive.kingScore}.`
+      : "No single round separated the two decision paths.",
   };
 }
 

@@ -732,7 +732,7 @@
 }
 
 .exchangeSide {
-  padding: 16px 0;
+  padding: 16px 18px;
 }
 
 .exchangeSide + .exchangeVs {
@@ -741,7 +741,6 @@
 
 .exchangeVs + .exchangeSide {
   border-left: 1px solid var(--line);
-  padding-left: 18px;
 }
 
 .exchangeSide > span,
@@ -835,6 +834,55 @@
 
 .exchangeVs + .exchangeSide .decisionTotal strong {
   color: var(--ink);
+}
+
+.outcomeToggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  font-size: 8px;
+  font-weight: 800;
+  justify-content: space-between;
+  letter-spacing: 0.1em;
+  margin-top: 14px;
+  padding: 12px 0 0;
+  text-transform: uppercase;
+  transition: color 180ms ease;
+  width: 100%;
+}
+
+.outcomeToggle:hover {
+  color: var(--blue);
+}
+
+.outcomeToggle > span {
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.decisionOutcome,
+.sharedOutcome {
+  animation: revealCounter 280ms ease both;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 12px 0 0;
+  max-width: 430px;
+}
+
+.sharedOutcome {
+  border-top: 1px solid var(--line);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding-top: 12px;
+  text-transform: uppercase;
 }
 
 .roundPoints {
@@ -975,9 +1023,66 @@
   min-width: 100px;
 }
 
+.conclusion {
+  border: 1px solid var(--line);
+  margin-top: 34px;
+}
+
+.conclusionLead {
+  padding: 22px;
+}
+
+.conclusionLead > span,
+.conclusionGrid small {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.conclusionLead h2 {
+  font-size: clamp(30px, 3.2vw, 58px);
+  letter-spacing: -0.06em;
+  line-height: 0.96;
+  margin: 34px 0 18px;
+  max-width: 760px;
+}
+
+.conclusionLead p,
+.conclusionGrid p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.conclusionLead p {
+  max-width: 720px;
+}
+
+.conclusionGrid {
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.conclusionGrid article {
+  min-height: 168px;
+  padding: 18px;
+}
+
+.conclusionGrid article + article {
+  border-left: 1px solid var(--line);
+}
+
+.conclusionGrid p {
+  margin-top: 28px;
+}
+
 .completeCopy .metricBoard {
   border-top: 1px solid var(--line);
-  margin-top: auto;
+  margin-top: 34px;
 }
 
 .completeCopy .metric {
@@ -1013,7 +1118,7 @@
 }
 
 .moveRecord article:first-of-type {
-  margin-top: auto;
+  margin-top: 44px;
 }
 
 .moveRecord small {
@@ -1625,13 +1730,12 @@
   }
 
   .exchangeSide {
-    padding: 18px 0;
+    padding: 18px 16px;
   }
 
   .exchangeSide + .exchangeVs,
   .exchangeVs + .exchangeSide {
     border-left: 0;
-    padding-left: 0;
   }
 
   .exchangeVs {
@@ -1675,6 +1779,19 @@
 
   .completeCopy h1 {
     font-size: clamp(52px, 16vw, 90px);
+  }
+
+  .conclusionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .conclusionGrid article {
+    min-height: 0;
+  }
+
+  .conclusionGrid article + article {
+    border-left: 0;
+    border-top: 1px solid var(--line);
   }
 
   .completeActions {
