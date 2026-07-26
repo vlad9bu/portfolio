@@ -1306,10 +1306,25 @@ a.systemCard:hover > b {
 }
 
 .gameInviteFooter b {
+  align-items: center;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
   font-size: 10px;
+  gap: 38px;
+  justify-content: space-between;
   letter-spacing: 0.13em;
+  min-width: 210px;
+  padding: 18px 20px;
   text-transform: uppercase;
-  transition: color 280ms ease, transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: background-color 280ms ease, color 280ms ease,
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gameInviteFooter b i {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
 }
 
 .gameInvite:hover .gamePlayer strong {
@@ -1329,7 +1344,8 @@ a.systemCard:hover > b {
 }
 
 .gameInvite:hover .gameInviteFooter b {
-  color: var(--accent);
+  background: var(--foreground);
+  color: #10110f;
   transform: translate(5px, -3px);
 }
 
@@ -1949,8 +1965,9 @@ a.systemCard:hover > b {
   }
 
   .gameInviteFooter b {
-    display: block;
+    display: flex;
     margin-top: 24px;
+    width: 100%;
   }
 
   .principle {

@@ -219,14 +219,15 @@
 }
 
 .kingPiece {
-  bottom: 4%;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(260px, 34vw, 620px);
+  font-family: "Arial Unicode MS", "Segoe UI Symbol", "Noto Sans Symbols 2",
+    Georgia, "Times New Roman", serif;
+  font-size: clamp(220px, 28vw, 500px);
   left: 50%;
-  line-height: 0.75;
+  line-height: 1;
   position: absolute;
   text-shadow: 0 24px 42px rgba(0, 0, 0, 0.34);
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -48%);
 }
 
 .kingStage p {
@@ -251,13 +252,14 @@
 }
 
 .generatingPiece {
-  align-items: end;
+  align-items: center;
   background: var(--blue);
   display: flex;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(300px, 38vw, 680px);
+  font-family: "Arial Unicode MS", "Segoe UI Symbol", "Noto Sans Symbols 2",
+    Georgia, "Times New Roman", serif;
+  font-size: clamp(220px, 28vw, 500px);
   justify-content: center;
-  line-height: 0.62;
+  line-height: 1;
   overflow: hidden;
 }
 

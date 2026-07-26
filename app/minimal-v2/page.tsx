@@ -102,7 +102,7 @@ export default function MinimalFocusEdition() {
           <a href="#record">Record</a>
           <a href="#systems">Systems</a>
           <a href="#decisions">Decisions</a>
-          <a href="#game">Game</a>
+          <a href="#game">Play</a>
         </nav>
         <div className={styles.headerActions}>
           <MotionController />
@@ -371,15 +371,16 @@ export default function MinimalFocusEdition() {
       >
         <div className={styles.sectionIndex} data-reveal>
           <span>06</span>
-          <p>Game</p>
+          <p>Play</p>
         </div>
         <div className={styles.sectionBody}>
           <div className={styles.gameHeading} data-reveal>
-            <p>Move The King / Interactive</p>
-            <h2>Can you outthink the King?</h2>
+            <p>Interactive business strategy game</p>
+            <h2>Move The King.</h2>
             <span>
-              Four business decisions. One company. You and an AI opponent
-              choose independently, then live with the consequences.
+              Take control of the same company as an AI King. Make four
+              independent decisions and see whose judgment produces the
+              stronger business.
             </span>
           </div>
 
@@ -391,8 +392,8 @@ export default function MinimalFocusEdition() {
             aria-label="Play Move The King"
           >
             <span className={styles.gameInviteHeader}>
-              <small>Business logic game</small>
-              <small>04 decisions / AI opponent</small>
+              <small>You vs the AI King</small>
+              <small>04 rounds / 12 imperfect choices</small>
             </span>
 
             <span className={styles.gameArena}>
@@ -419,7 +420,7 @@ export default function MinimalFocusEdition() {
                 Every choice creates gains, costs, and second-order effects.
                 The better judgment compounds across four rounds.
               </span>
-              <b>Enter the board ↗</b>
+              <b>Play the game <i aria-hidden="true">↗</i></b>
             </span>
           </a>
         </div>
