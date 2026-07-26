@@ -105,9 +105,6 @@ export default function MinimalFocusEdition() {
         </nav>
         <div className={styles.headerActions}>
           <MotionController />
-          <a href="/minimal" className={styles.edition}>
-            V2 / Compare minimal ↗
-          </a>
         </div>
       </header>
 
