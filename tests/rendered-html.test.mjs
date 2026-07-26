@@ -27,7 +27,7 @@ async function render(path = "/") {
   );
 }
 
-test("server-renders the founder profile", async () => {
+test("server-renders the focused founder profile at the main address", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
@@ -39,16 +39,18 @@ test("server-renders the founder profile", async () => {
   );
   assert.match(html, /I build software companies/);
   assert.match(html, /href="https:\/\/group\.growkong\.com"/);
-  assert.match(html, /href="https:\/\/growkong\.com"/);
-  assert.match(html, /GrowKong Network/);
-  assert.match(html, /GrowKong Foundry/);
-  assert.match(html, /Next layer · Product creation/);
-  assert.doesNotMatch(html, /Shared systems/);
+  assert.match(html, /One group\. One operating system/);
+  assert.match(html, /first-party company-building system/);
+  assert.match(html, /Founder judgment/);
   assert.match(html, /Context OS/);
   assert.match(html, /Successful exit through an equity sale/);
-  assert.match(html, /I got these wrong/);
+  assert.match(html, /Knowing when to stop is part of building/);
   assert.match(html, /MyWhy AI Therapist/);
   assert.match(html, /Restaurant photography/);
+  assert.doesNotMatch(
+    html,
+    /GrowKong Network|GrowKong Foundry|PinPinMe|NoSweatKing/,
+  );
 });
 
 test("keeps job-seeking and starter language out of the finished site", async () => {
@@ -59,7 +61,7 @@ test("keeps job-seeking and starter language out of the finished site", async ()
   assert.doesNotMatch(html, /Building something ambitious|Get in touch/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
   assert.doesNotMatch(html, /646-239-1517|vlad9bu@gmail\.com/i);
-  assert.match(html, /https:\/\/vladbudko\.com\/og\.png/);
+  assert.match(html, /https:\/\/vladbudko\.com\/og-minimal\.png/);
 });
 
 test("server-renders the minimal comparison edition", async () => {
