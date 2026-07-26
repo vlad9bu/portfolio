@@ -242,6 +242,7 @@ function jsonResponse(
   board: GameBoard,
   mode: "ai" | "simulation",
   model?: string,
+  fallbackReason?: string,
 ) {
   return NextResponse.json(
     { board, mode, model: mode === "ai" ? model : undefined },
@@ -249,6 +250,9 @@ function jsonResponse(
       headers: {
         "Cache-Control": "no-store",
         "X-Content-Type-Options": "nosniff",
+        ...(fallbackReason
+          ? { "X-Move-The-King-Fallback": fallbackReason }
+          : {}),
       },
     },
   );
@@ -279,7 +283,14 @@ export async function POST(request: Request) {
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return jsonResponse(fallbackBoard, "simulation");
+  if (!apiKey) {
+    return jsonResponse(
+      fallbackBoard,
+      "simulation",
+      undefined,
+      "missing-api-key",
+    );
+  }
 
   const model = process.env.OPENAI_MODEL || "gpt-5.4-mini";
   const frame =
@@ -333,17 +344,44 @@ export async function POST(request: Request) {
       signal: AbortSignal.timeout(50_000),
     });
 
-    if (!response.ok) return jsonResponse(fallbackBoard, "simulation");
+    if (!response.ok) {
+      return jsonResponse(
+        fallbackBoard,
+        "simulation",
+        undefined,
+        `upstream-${response.status}`,
+      );
+    }
 
     const payload = (await response.json()) as OpenAIResponse;
     const outputText = getOutputText(payload);
-    if (!outputText) return jsonResponse(fallbackBoard, "simulation");
+    if (!outputText) {
+      return jsonResponse(
+        fallbackBoard,
+        "simulation",
+        undefined,
+        "missing-output",
+      );
+    }
 
     const board = normalizeBoard(JSON.parse(outputText));
-    if (!board) return jsonResponse(fallbackBoard, "simulation");
+    if (!board) {
+      return jsonResponse(
+        fallbackBoard,
+        "simulation",
+        undefined,
+        "invalid-board",
+      );
+    }
 
     return jsonResponse(board, "ai", model);
-  } catch {
-    return jsonResponse(fallbackBoard, "simulation");
+  } catch (error) {
+    const reason =
+      error instanceof DOMException && error.name === "TimeoutError"
+        ? "timeout"
+        : error instanceof SyntaxError
+          ? "invalid-json"
+          : "request-failed";
+    return jsonResponse(fallbackBoard, "simulation", undefined, reason);
   }
 }
