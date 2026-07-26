@@ -327,7 +327,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model,
         store: false,
-        reasoning: { effort: "medium" },
+        reasoning: { effort: "low" },
         max_output_tokens: 6000,
         instructions,
         input,
