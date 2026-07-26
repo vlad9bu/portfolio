@@ -459,32 +459,25 @@ export default function MoveTheKing() {
 
       {phase === "intro" && (
         <section className={styles.intro}>
-          <div className={styles.introCopy}>
-            <p>
-              <span>Strategy experiment</span>
-              <span>Four moves</span>
-            </p>
-            <h1>
-              Move
-              <br />
-              The King.
-            </h1>
-            <div className={styles.introText}>
-              <p>
-                You and the King face the same company and the same four
-                unstable positions. Choose independently, reveal both
-                decisions, and see whose judgment creates the stronger result.
-              </p>
-              <button type="button" onClick={startGame}>
-                Enter the board
-                <span aria-hidden="true">↘</span>
-              </button>
-            </div>
+          <h1 className={styles.visuallyHidden}>
+            Move The King — A Business Logic Game
+          </h1>
+          <div className={styles.introCover} aria-hidden="true">
+            <span className={styles.kingArtwork} />
           </div>
-          <div className={styles.kingStage} aria-hidden="true">
-            <div className={styles.kingGrid} />
-            <span className={styles.kingPiece}>♚</span>
-            <p>The opponent does not need your plan. Only your position.</p>
+          <div className={styles.introLaunch}>
+            <div>
+              <span>Strategy experiment / Four moves</span>
+              <strong>Move The King.</strong>
+              <p>
+                You and the AI King face the same company and choose
+                independently. See whose judgment creates the stronger result.
+              </p>
+            </div>
+            <button type="button" onClick={startGame}>
+              Play the game
+              <span aria-hidden="true">↘</span>
+            </button>
           </div>
         </section>
       )}
@@ -492,7 +485,7 @@ export default function MoveTheKing() {
       {phase === "generating" && (
         <section className={styles.generating} aria-live="polite" aria-busy>
           <div className={styles.generatingPiece} aria-hidden="true">
-            ♚
+            <span className={styles.kingArtwork} />
           </div>
           <div className={styles.generatingCopy}>
             <span>New game / new position</span>
@@ -509,7 +502,7 @@ export default function MoveTheKing() {
       {phase === "resolving" && (
         <section className={styles.generating} aria-live="polite" aria-busy>
           <div className={styles.generatingPiece} aria-hidden="true">
-            ♚
+            <span className={styles.kingArtwork} />
           </div>
           <div className={styles.generatingCopy}>
             <span>Four moves / one pattern</span>
@@ -593,9 +586,10 @@ export default function MoveTheKing() {
                   aria-live="polite"
                   aria-busy="true"
                 >
-                  <span className={styles.thinkingKing} aria-hidden="true">
-                    ♚
-                  </span>
+                  <span
+                    className={`${styles.kingArtwork} ${styles.thinkingKing}`}
+                    aria-hidden="true"
+                  />
                   <div>
                     <small>The board is changing</small>
                     <h2>The King is choosing independently.</h2>
@@ -760,7 +754,7 @@ export default function MoveTheKing() {
       {phase === "complete" && (
         <section className={styles.complete}>
           <div className={styles.completeMark} aria-hidden="true">
-            ♚
+            <span className={styles.kingArtwork} />
           </div>
           <div className={styles.completeCopy}>
             <span>{result.eyebrow}</span>

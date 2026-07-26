@@ -86,25 +86,25 @@
 }
 
 .intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1.52fr) minmax(360px, 0.48fr);
+  background: var(--paper);
   min-height: calc(100svh - 64px);
 }
 
-.introCopy {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 22px;
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
-.introCopy > p {
-  display: flex;
-  justify-content: space-between;
-  margin: 0;
+.introCover {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
 }
 
-.introCopy > p span,
 .situation > p,
 .movesHeader span,
 .movesHeader small,
@@ -121,37 +121,50 @@
   text-transform: uppercase;
 }
 
-.introCopy h1 {
-  font-size: clamp(86px, 13vw, 230px);
-  font-weight: 800;
-  letter-spacing: -0.09em;
-  line-height: 0.72;
-  margin: auto 0;
+.introCover .kingArtwork {
+  aspect-ratio: 1734 / 907;
+  background-position: center;
+  background-size: contain;
+  width: 100%;
+}
+
+.introLaunch {
+  align-items: center;
+  display: grid;
+  gap: 42px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 18px 22px 22px;
+}
+
+.introLaunch > div {
+  display: grid;
+  gap: 10px 36px;
+  grid-template-columns: minmax(180px, 0.36fr) minmax(320px, 0.64fr);
+  max-width: 980px;
+}
+
+.introLaunch > div > span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-.introCopy h1::first-line {
-  color: var(--blue);
+.introLaunch strong {
+  display: none;
 }
 
-.introText {
-  align-items: end;
-  border-top: 1px solid var(--line);
-  display: grid;
-  gap: 40px;
-  grid-template-columns: 1fr auto;
-  padding-top: 18px;
-}
-
-.introText p {
-  font-size: clamp(16px, 1.5vw, 23px);
+.introLaunch p {
+  font-size: clamp(14px, 1.15vw, 18px);
+  grid-column: 2;
   letter-spacing: -0.025em;
-  line-height: 1.38;
+  line-height: 1.45;
   margin: 0;
-  max-width: 760px;
+  max-width: 700px;
 }
 
-.introText button,
+.introLaunch button,
 .commitRow button,
 .counterBody > button,
 .completeActions button,
@@ -174,7 +187,7 @@
     transform 180ms ease;
 }
 
-.introText button:hover,
+.introLaunch button:hover,
 .commitRow button:hover:not(:disabled),
 .counterBody > button:hover,
 .completeActions button:hover {
@@ -184,58 +197,34 @@
 }
 
 .kingStage {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--paper);
+  color: var(--ink);
   min-height: calc(100svh - 64px);
   overflow: hidden;
   position: relative;
 }
 
-.kingStage::before {
-  background: var(--blue);
-  content: "";
-  height: 36vw;
-  left: 38%;
-  position: absolute;
-  top: 52%;
-  transform: rotate(28deg);
-  transform-origin: left center;
-  width: 90vw;
+.kingArtwork {
+  background-image: url("/og-move-the-king.png");
+  background-position: 69% center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: block;
 }
 
-.kingGrid {
-  background-image: linear-gradient(
-      rgba(244, 244, 239, 0.16) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(244, 244, 239, 0.16) 1px,
-      transparent 1px
-    );
-  background-size: 25% 12.5%;
+.kingStage > .kingArtwork {
   inset: 0;
   position: absolute;
 }
 
-.kingPiece {
-  font-family: "Arial Unicode MS", "Segoe UI Symbol", "Noto Sans Symbols 2",
-    Georgia, "Times New Roman", serif;
-  font-size: clamp(220px, 28vw, 500px);
-  left: 50%;
-  line-height: 1;
-  position: absolute;
-  text-shadow: 0 24px 42px rgba(0, 0, 0, 0.34);
-  top: 50%;
-  transform: translate(-50%, -48%);
-}
-
 .kingStage p {
-  color: rgba(244, 244, 239, 0.68);
+  background: rgba(244, 244, 239, 0.88);
+  color: rgba(16, 17, 15, 0.7);
   font-size: 11px;
   line-height: 1.5;
   margin: 0;
   max-width: 260px;
+  padding: 10px 12px;
   position: absolute;
   right: 22px;
   top: 22px;
@@ -252,15 +241,15 @@
 }
 
 .generatingPiece {
-  align-items: center;
-  background: var(--blue);
+  background: var(--paper);
   display: flex;
-  font-family: "Arial Unicode MS", "Segoe UI Symbol", "Noto Sans Symbols 2",
-    Georgia, "Times New Roman", serif;
-  font-size: clamp(220px, 28vw, 500px);
-  justify-content: center;
-  line-height: 1;
+  min-height: calc(100svh - 64px);
   overflow: hidden;
+}
+
+.generatingPiece .kingArtwork {
+  height: 100%;
+  width: 100%;
 }
 
 .generatingCopy {
@@ -619,12 +608,9 @@
 }
 
 .thinkingKing {
-  color: var(--blue);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(220px, 28vw, 500px);
-  line-height: 0.7;
-  text-align: center;
   animation: consider 1800ms ease-in-out infinite;
+  height: 430px;
+  width: 100%;
 }
 
 .thinking > div {
@@ -974,15 +960,14 @@
 }
 
 .completeMark {
-  align-items: end;
-  background: var(--blue);
-  color: #fff;
-  display: flex;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(240px, 30vw, 520px);
-  justify-content: center;
-  line-height: 0.65;
+  background: var(--paper);
   overflow: hidden;
+}
+
+.completeMark .kingArtwork {
+  height: 100%;
+  min-height: calc(100svh - 64px);
+  width: 100%;
 }
 
 .completeCopy {
@@ -1391,10 +1376,10 @@
 @keyframes consider {
   0%,
   100% {
-    transform: translateY(0) rotate(-1deg);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px) rotate(1deg);
+    transform: translateY(-10px);
   }
 }
 
@@ -1510,12 +1495,9 @@
 }
 
 @media (max-width: 1050px) {
-  .intro {
-    grid-template-columns: 1fr;
-  }
-
-  .kingStage {
-    min-height: 52svh;
+  .generatingPiece .kingArtwork,
+  .completeMark .kingArtwork {
+    background-position: center;
   }
 
   .generating {
@@ -1524,10 +1506,6 @@
 
   .generatingPiece {
     min-height: 42svh;
-  }
-
-  .introCopy {
-    min-height: calc(78svh - 64px);
   }
 
   .position {
@@ -1568,6 +1546,10 @@
     min-height: 42svh;
   }
 
+  .completeMark .kingArtwork {
+    min-height: 42svh;
+  }
+
   .moveRecord {
     border-left: 0;
     border-top: 1px solid var(--line);
@@ -1591,21 +1573,37 @@
     display: none;
   }
 
-  .introCopy {
-    min-height: calc(100svh - 64px);
+  .introCover .kingArtwork {
+    aspect-ratio: auto;
+    background-position: 70% center;
+    background-size: cover;
+    height: 68svh;
   }
 
-  .introCopy h1 {
-    font-size: clamp(72px, 24vw, 140px);
-  }
-
-  .introText {
-    align-items: stretch;
+  .introLaunch {
     grid-template-columns: 1fr;
+    padding: 22px 16px 24px;
   }
 
-  .kingStage {
-    min-height: 72svh;
+  .introLaunch > div {
+    display: block;
+  }
+
+  .introLaunch strong {
+    display: block;
+    font-size: clamp(48px, 15vw, 78px);
+    letter-spacing: -0.075em;
+    line-height: 0.86;
+    margin: 28px 0 22px;
+    text-transform: uppercase;
+  }
+
+  .introLaunch p {
+    font-size: 15px;
+  }
+
+  .introLaunch button {
+    width: 100%;
   }
 
   .duelBoard {
@@ -1638,7 +1636,6 @@
   }
 
   .generatingPiece {
-    font-size: clamp(240px, 78vw, 420px);
     min-height: 42svh;
   }
 
@@ -1715,8 +1712,7 @@
   }
 
   .thinkingKing {
-    font-size: 220px;
-    text-align: left;
+    height: 320px;
   }
 
   .counterTitle {
