@@ -9,15 +9,20 @@ import {
   useState,
 } from "react";
 import {
+  addRoundScore,
   applyImpact,
   fallbackBoard,
   gameResult,
   getLocalCounter,
+  getRoundOutcome,
+  initialDuelScore,
   initialMetrics,
   metricKeys,
   type CounterMove,
+  type DuelScore,
   type GameBoard,
   type Metrics,
+  type RoundOutcome,
   type TurnHistory,
 } from "./game";
 import styles from "./move-the-king.module.css";
@@ -41,6 +46,11 @@ type BoardResponse = {
   board: GameBoard;
   mode: "ai" | "simulation";
   model?: string;
+};
+
+type GameTurnHistory = TurnHistory & {
+  youPoints: number;
+  kingPoints: number;
 };
 
 const metricLabels: Record<keyof Metrics, string> = {
@@ -85,6 +95,36 @@ function ImpactList({ impact }: { impact: Metrics }) {
   );
 }
 
+function DuelBoard({
+  score,
+  roundsPlayed,
+}: {
+  score: DuelScore;
+  roundsPlayed: number;
+}) {
+  return (
+    <div
+      className={styles.duelBoard}
+      aria-label={`Cumulative score: you ${score.you}, King ${score.king}`}
+    >
+      <div className={styles.duelSide} data-side="you">
+        <small>You</small>
+        <strong>{String(score.you).padStart(2, "0")}</strong>
+        <span>Cumulative points</span>
+      </div>
+      <div className={styles.duelVs}>
+        <strong>VS</strong>
+        <small>{roundsPlayed} / 4 resolved</small>
+      </div>
+      <div className={styles.duelSide} data-side="king">
+        <small>The King</small>
+        <strong>{String(score.king).padStart(2, "0")}</strong>
+        <span>Cumulative points</span>
+      </div>
+    </div>
+  );
+}
+
 export default function MoveTheKing() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [gameBoard, setGameBoard] = useState<GameBoard>(fallbackBoard);
@@ -92,7 +132,9 @@ export default function MoveTheKing() {
   const [metrics, setMetrics] = useState<Metrics>(initialMetrics);
   const [selectedMoveId, setSelectedMoveId] = useState<string | null>(null);
   const [counter, setCounter] = useState<CounterMove | null>(null);
-  const [history, setHistory] = useState<TurnHistory[]>([]);
+  const [history, setHistory] = useState<GameTurnHistory[]>([]);
+  const [duelScore, setDuelScore] = useState<DuelScore>(initialDuelScore);
+  const [roundOutcome, setRoundOutcome] = useState<RoundOutcome | null>(null);
   const [engine, setEngine] = useState<"ai" | "simulation" | null>(null);
   const [boardEngine, setBoardEngine] = useState<
     "ai" | "simulation" | null
@@ -110,7 +152,7 @@ export default function MoveTheKing() {
     () => round.moves.find((move) => move.id === selectedMoveId) ?? null,
     [round, selectedMoveId],
   );
-  const result = gameResult(metrics);
+  const result = gameResult(metrics, duelScore);
 
   const setGenieOffset = () => {
     const panel = helpPanelRef.current;
@@ -201,6 +243,8 @@ export default function MoveTheKing() {
     setSelectedMoveId(null);
     setCounter(null);
     setHistory([]);
+    setDuelScore(initialDuelScore);
+    setRoundOutcome(null);
     setEngine(null);
     setBoardEngine(null);
     setLastPlayerImpact(null);
@@ -282,15 +326,23 @@ export default function MoveTheKing() {
       metricsAfterMove,
       response.counter.impact,
     );
+    const outcome = getRoundOutcome(
+      selectedMove.impact,
+      response.counter.impact,
+    );
     setCounter(response.counter);
     setEngine(response.mode);
     setMetrics(metricsAfterCounter);
+    setRoundOutcome(outcome);
+    setDuelScore((current) => addRoundScore(current, outcome));
     setHistory((current) => [
       ...current,
       {
         round: roundIndex,
         move: selectedMove.title,
         counter: response.counter.counterMove,
+        youPoints: outcome.youPoints,
+        kingPoints: outcome.kingPoints,
       },
     ]);
     setPhase("counter");
@@ -306,6 +358,7 @@ export default function MoveTheKing() {
     setSelectedMoveId(null);
     setCounter(null);
     setLastPlayerImpact(null);
+    setRoundOutcome(null);
     setPhase("turn");
   };
 
@@ -389,6 +442,7 @@ export default function MoveTheKing() {
 
       {["turn", "thinking", "counter"].includes(phase) && (
         <>
+          <DuelBoard score={duelScore} roundsPlayed={history.length} />
           <MetricBoard metrics={metrics} />
 
           <section className={styles.position}>
@@ -483,15 +537,43 @@ export default function MoveTheKing() {
                   <div className={styles.counterBody}>
                     <p>{counter.why}</p>
                     <blockquote>“{counter.kingLine}”</blockquote>
-                    {lastPlayerImpact && (
+                    {lastPlayerImpact && roundOutcome && (
                       <div className={styles.exchange}>
-                        <div>
+                        <div className={styles.exchangeSide}>
                           <span>Your move</span>
                           <ImpactList impact={lastPlayerImpact} />
                         </div>
-                        <div>
+                        <div className={styles.exchangeVs} aria-hidden="true">
+                          <span>VS</span>
+                        </div>
+                        <div className={styles.exchangeSide}>
                           <span>King&apos;s counter</span>
                           <ImpactList impact={counter.impact} />
+                        </div>
+                        <div className={styles.roundResult}>
+                          <div className={styles.roundResultTitle}>
+                            <span>Round {round.code} / net result</span>
+                            <strong data-winner={roundOutcome.winner}>
+                              {roundOutcome.winner === "even"
+                                ? "Even round"
+                                : roundOutcome.winner === "you"
+                                  ? "Round to you"
+                                  : "Round to the King"}
+                            </strong>
+                          </div>
+                          <ImpactList impact={roundOutcome.net} />
+                          <div className={styles.roundPoints}>
+                            <span>
+                              You <strong>+{roundOutcome.youPoints}</strong>
+                            </span>
+                            <small>
+                              Positive net change scores for you. Negative net
+                              change scores for the King.
+                            </small>
+                            <span>
+                              King <strong>+{roundOutcome.kingPoints}</strong>
+                            </span>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -518,6 +600,7 @@ export default function MoveTheKing() {
             <span>{result.eyebrow}</span>
             <h1>{result.title}</h1>
             <p>{result.detail}</p>
+            <DuelBoard score={duelScore} roundsPlayed={history.length} />
             <MetricBoard metrics={metrics} />
             <div className={styles.completeActions}>
               <button onClick={startGame} type="button">
@@ -533,6 +616,9 @@ export default function MoveTheKing() {
                 <small>0{turn.round + 1}</small>
                 <p>{turn.move}</p>
                 <strong>{turn.counter}</strong>
+                <span>
+                  You +{turn.youPoints} / King +{turn.kingPoints}
+                </span>
               </article>
             ))}
           </div>
@@ -616,7 +702,11 @@ export default function MoveTheKing() {
                 <span>04</span>
                 <div>
                   <strong>Keep the system alive</strong>
-                  <p>Carry all four metrics through four changing positions.</p>
+                  <p>
+                    Positive net change scores for you. Negative net change
+                    scores for the King. The totals carry through all four
+                    rounds.
+                  </p>
                 </div>
               </li>
             </ol>

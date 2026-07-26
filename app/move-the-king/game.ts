@@ -2,6 +2,18 @@ export type MetricKey = "capital" | "trust" | "momentum" | "leverage";
 
 export type Metrics = Record<MetricKey, number>;
 
+export type DuelScore = {
+  you: number;
+  king: number;
+};
+
+export type RoundOutcome = {
+  net: Metrics;
+  youPoints: number;
+  kingPoints: number;
+  winner: "you" | "king" | "even";
+};
+
 export type Move = {
   id: string;
   title: string;
@@ -51,6 +63,11 @@ export const initialMetrics: Metrics = {
   trust: 61,
   momentum: 48,
   leverage: 37,
+};
+
+export const initialDuelScore: DuelScore = {
+  you: 0,
+  king: 0,
 };
 
 export const rounds: GameRound[] = [
@@ -213,6 +230,45 @@ export function applyImpact(metrics: Metrics, impact: Metrics): Metrics {
   );
 }
 
+export function getRoundOutcome(
+  playerImpact: Metrics,
+  counterImpact: Metrics,
+): RoundOutcome {
+  const net = metricKeys.reduce(
+    (next, key) => {
+      next[key] = playerImpact[key] + counterImpact[key];
+      return next;
+    },
+    {} as Metrics,
+  );
+  const youPoints = metricKeys.reduce(
+    (total, key) => total + Math.max(0, net[key]),
+    0,
+  );
+  const kingPoints = metricKeys.reduce(
+    (total, key) => total + Math.max(0, -net[key]),
+    0,
+  );
+
+  return {
+    net,
+    youPoints,
+    kingPoints,
+    winner:
+      youPoints === kingPoints ? "even" : youPoints > kingPoints ? "you" : "king",
+  };
+}
+
+export function addRoundScore(
+  score: DuelScore,
+  outcome: RoundOutcome,
+): DuelScore {
+  return {
+    you: score.you + outcome.youPoints,
+    king: score.king + outcome.kingPoints,
+  };
+}
+
 const localCounters: Record<string, Omit<CounterMove, "signal">> = {
   "repair-core": {
     counterMove: "The market re-labels your pause as weakness.",
@@ -339,37 +395,56 @@ export function getLocalCounter(
   };
 }
 
-export function gameResult(metrics: Metrics) {
-  const average =
-    metricKeys.reduce((total, key) => total + metrics[key], 0) /
-    metricKeys.length;
+export function gameResult(metrics: Metrics, score: DuelScore) {
   const floor = Math.min(...metricKeys.map((key) => metrics[key]));
+  const strongest = metricKeys.reduce((current, key) =>
+    metrics[key] > metrics[current] ? key : current,
+  );
+  const weakest = metricKeys.reduce((current, key) =>
+    metrics[key] < metrics[current] ? key : current,
+  );
+  const label = (key: MetricKey) =>
+    key.charAt(0).toUpperCase() + key.slice(1);
 
   if (floor <= 12 || metrics.capital <= 8) {
     return {
       state: "king_holds",
-      eyebrow: "The king holds",
-      title: "The company moved faster than the system.",
+      winner: "king" as const,
+      eyebrow: "Winner / The King",
+      title: "The King held the board.",
       detail:
-        "You created momentum, but left one structural weakness exposed long enough for the board to collapse around it.",
+        `${label(weakest)} fell to ${metrics[weakest]}. The company crossed its survival floor, so the King wins regardless of the points on the board.`,
     };
   }
 
-  if (average >= 61 && metrics.leverage >= 52 && metrics.trust >= 48) {
+  if (score.you > score.king) {
     return {
       state: "you_advance",
-      eyebrow: "The king has no durable move",
-      title: "You protected the system.",
+      winner: "you" as const,
+      eyebrow: "Winner / You",
+      title: "You moved the King.",
       detail:
-        "The individual choices were imperfect. The operating system remained strong enough to preserve future moves.",
+        `You won ${score.you}–${score.king}. Positive net gains survived the counters, with ${label(strongest)} finishing strongest at ${metrics[strongest]}.`,
+    };
+  }
+
+  if (score.king > score.you) {
+    return {
+      state: "king_holds",
+      winner: "king" as const,
+      eyebrow: "Winner / The King",
+      title: "The King held the board.",
+      detail:
+        `The King won ${score.king}–${score.you}. The counters created more damage than your moves created value, leaving ${label(weakest)} weakest at ${metrics[weakest]}.`,
     };
   }
 
   return {
     state: "board_shifts",
+    winner: "even" as const,
     eyebrow: "The board remains open",
-    title: "You survived without resolving the position.",
+    title: "Neither side resolved the position.",
     detail:
-      "The company can keep playing, but its next move must turn temporary momentum into durable leverage.",
+      `The score finished ${score.you}–${score.king}. You absorbed every counter, but did not create enough net advantage to move the King.`,
   };
 }

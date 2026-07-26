@@ -307,6 +307,73 @@
   width: 28%;
 }
 
+.duelBoard {
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 124px 1fr;
+  min-height: 104px;
+}
+
+.duelSide {
+  align-items: center;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: auto auto 1fr;
+  padding: 16px 22px;
+}
+
+.duelSide small,
+.duelSide span,
+.duelVs small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.duelSide strong {
+  color: var(--blue);
+  font-size: clamp(36px, 4vw, 68px);
+  letter-spacing: -0.075em;
+  line-height: 1;
+}
+
+.duelSide span {
+  justify-self: end;
+}
+
+.duelSide[data-side="king"] {
+  direction: rtl;
+}
+
+.duelSide[data-side="king"] > * {
+  direction: ltr;
+}
+
+.duelSide[data-side="king"] strong {
+  color: var(--ink);
+}
+
+.duelVs {
+  align-items: center;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.duelVs strong {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+}
+
+.duelVs small {
+  color: rgba(244, 244, 239, 0.52);
+  margin-top: 6px;
+}
+
 .metricBoard {
   border-bottom: 1px solid var(--line);
   display: grid;
@@ -362,7 +429,7 @@
 .position {
   display: grid;
   grid-template-columns: 210px minmax(0, 1fr);
-  min-height: calc(100svh - 152px);
+  min-height: calc(100svh - 256px);
 }
 
 .positionRail {
@@ -660,24 +727,122 @@
   border-bottom: 1px solid var(--line);
   border-top: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) 68px minmax(0, 1fr);
   margin-top: auto;
 }
 
-.exchange > div {
+.exchangeSide {
   padding: 16px 0;
 }
 
-.exchange > div + div {
+.exchangeSide + .exchangeVs {
+  border-left: 1px solid var(--line);
+}
+
+.exchangeVs + .exchangeSide {
   border-left: 1px solid var(--line);
   padding-left: 18px;
 }
 
-.exchange > div > span {
+.exchangeSide > span,
+.roundResultTitle > span {
   color: var(--muted);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.exchangeVs {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.exchangeVs > span {
+  align-items: center;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  font-size: 10px;
+  font-weight: 800;
+  height: 38px;
+  justify-content: center;
+  letter-spacing: 0.08em;
+  width: 38px;
+}
+
+.roundResult {
+  background: rgba(16, 17, 15, 0.035);
+  border-top: 1px solid var(--line);
+  grid-column: 1 / -1;
+  padding: 18px 0 0;
+}
+
+.roundResultTitle {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+}
+
+.roundResultTitle > strong {
+  color: var(--blue);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.roundResultTitle > strong[data-winner="king"] {
+  color: #a43b28;
+}
+
+.roundResultTitle > strong[data-winner="even"] {
+  color: var(--muted);
+}
+
+.roundResult .impactList {
+  margin: 20px 0;
+}
+
+.roundPoints {
+  align-items: center;
+  background: var(--ink);
+  color: var(--paper);
+  display: grid;
+  gap: 22px;
+  grid-template-columns: auto 1fr auto;
+  margin-top: 18px;
+  min-height: 58px;
+  padding: 0 16px;
+}
+
+.roundPoints > span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.roundPoints > span:last-child {
+  text-align: right;
+}
+
+.roundPoints > span strong {
+  color: var(--blue);
+  font-size: 17px;
+  margin-left: 8px;
+}
+
+.roundPoints > span:last-child strong {
+  color: #d2664f;
+}
+
+.roundPoints > small {
+  color: rgba(244, 244, 239, 0.54);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -759,6 +924,24 @@
   max-width: 650px;
 }
 
+.completeCopy > .duelBoard {
+  border: 1px solid var(--line);
+  margin-top: 42px;
+  min-height: 88px;
+}
+
+.completeCopy > .duelBoard .duelSide span {
+  display: none;
+}
+
+.completeCopy > .duelBoard .duelSide {
+  grid-template-columns: auto 1fr;
+}
+
+.completeCopy > .duelBoard .duelVs {
+  min-width: 100px;
+}
+
 .completeCopy .metricBoard {
   border-top: 1px solid var(--line);
   margin-top: auto;
@@ -817,6 +1000,16 @@
 .moveRecord strong {
   color: var(--muted);
   font-weight: 400;
+}
+
+.moveRecord article > span {
+  color: var(--blue);
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-top: 11px;
+  text-transform: uppercase;
 }
 
 .footer {
@@ -1275,6 +1468,35 @@
     min-height: 72svh;
   }
 
+  .duelBoard {
+    grid-template-columns: 1fr 72px 1fr;
+    min-height: 90px;
+  }
+
+  .duelSide {
+    align-content: center;
+    gap: 5px;
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .duelSide span {
+    display: none;
+  }
+
+  .duelSide[data-side="king"] {
+    direction: ltr;
+    text-align: right;
+  }
+
+  .duelSide strong {
+    font-size: 42px;
+  }
+
+  .duelVs small {
+    display: none;
+  }
+
   .generatingPiece {
     font-size: clamp(240px, 78vw, 420px);
     min-height: 42svh;
@@ -1369,10 +1591,45 @@
     grid-template-columns: 1fr;
   }
 
-  .exchange > div + div {
+  .exchangeSide {
+    padding: 18px 0;
+  }
+
+  .exchangeSide + .exchangeVs,
+  .exchangeVs + .exchangeSide {
     border-left: 0;
-    border-top: 1px solid var(--line);
     padding-left: 0;
+  }
+
+  .exchangeVs {
+    border-bottom: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    min-height: 52px;
+  }
+
+  .roundResult {
+    grid-column: 1;
+  }
+
+  .roundResultTitle {
+    align-items: start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .roundPoints {
+    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+    padding-block: 12px;
+  }
+
+  .roundPoints > small {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .completeCopy > .duelBoard {
+    width: 100%;
   }
 
   .counterBody > button {

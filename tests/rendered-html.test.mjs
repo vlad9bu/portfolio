@@ -123,6 +123,8 @@ test("server-renders Move The King as a separate business logic game", async () 
   assert.match(html, /How to play/);
   assert.match(html, /There is no perfect move/);
   assert.match(html, /Keep the system alive/);
+  assert.match(html, /Positive net change scores for you/);
+  assert.match(html, /The totals carry through all four rounds/);
   assert.match(html, /og-move-the-king\.png/);
   assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9]/);
 });
