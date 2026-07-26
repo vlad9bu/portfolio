@@ -1386,6 +1386,7 @@ a.systemCard:hover > b {
 }
 
 .footer div:first-child strong {
+  font-family: inherit;
   font-size: 20px;
   letter-spacing: -0.04em;
 }

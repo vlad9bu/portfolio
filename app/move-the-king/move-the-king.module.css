@@ -1140,6 +1140,7 @@
 .footer {
   align-items: center;
   border-top: 1px solid var(--line);
+  column-gap: 20px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   min-height: 72px;

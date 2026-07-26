@@ -907,7 +907,7 @@ export default function MoveTheKing() {
       )}
 
       <footer className={styles.footer}>
-        <span>Vlad Budko / 2026</span>
+        <span>Vlad Budko / 2026{"\u00a0"}</span>
         <span>
           {boardEngine === "ai" ||
           engine === "ai" ||
