@@ -13,14 +13,14 @@ import {
   applyImpact,
   fallbackBoard,
   gameResult,
-  getLocalCounter,
+  getLocalKingChoice,
   getRoundOutcome,
   initialDuelScore,
   initialMetrics,
   metricKeys,
-  type CounterMove,
   type DuelScore,
   type GameBoard,
+  type KingChoice,
   type Metrics,
   type RoundOutcome,
   type TurnHistory,
@@ -36,8 +36,8 @@ type Phase =
   | "complete";
 type HelpPhase = "open" | "closing" | "closed" | "opening";
 
-type CounterResponse = {
-  counter: CounterMove;
+type KingChoiceResponse = {
+  choice: KingChoice;
   mode: "ai" | "simulation";
   model?: string;
 };
@@ -49,8 +49,8 @@ type BoardResponse = {
 };
 
 type GameTurnHistory = TurnHistory & {
-  youPoints: number;
-  kingPoints: number;
+  youScore: number;
+  kingScore: number;
 };
 
 const metricLabels: Record<keyof Metrics, string> = {
@@ -66,7 +66,10 @@ function formatImpact(value: number) {
 
 function MetricBoard({ metrics }: { metrics: Metrics }) {
   return (
-    <div className={styles.metricBoard} aria-label="Company metrics">
+    <div
+      className={styles.metricBoard}
+      aria-label="Company metrics along your decision path"
+    >
       {metricKeys.map((key) => (
         <div className={styles.metric} key={key}>
           <span>
@@ -109,7 +112,7 @@ function DuelBoard({
     >
       <div className={styles.duelSide} data-side="you">
         <small>You</small>
-        <strong>{String(score.you).padStart(2, "0")}</strong>
+        <strong>{formatImpact(score.you)}</strong>
         <span>Cumulative points</span>
       </div>
       <div className={styles.duelVs}>
@@ -118,7 +121,7 @@ function DuelBoard({
       </div>
       <div className={styles.duelSide} data-side="king">
         <small>The King</small>
-        <strong>{String(score.king).padStart(2, "0")}</strong>
+        <strong>{formatImpact(score.king)}</strong>
         <span>Cumulative points</span>
       </div>
     </div>
@@ -131,7 +134,7 @@ export default function MoveTheKing() {
   const [roundIndex, setRoundIndex] = useState(0);
   const [metrics, setMetrics] = useState<Metrics>(initialMetrics);
   const [selectedMoveId, setSelectedMoveId] = useState<string | null>(null);
-  const [counter, setCounter] = useState<CounterMove | null>(null);
+  const [kingChoice, setKingChoice] = useState<KingChoice | null>(null);
   const [history, setHistory] = useState<GameTurnHistory[]>([]);
   const [duelScore, setDuelScore] = useState<DuelScore>(initialDuelScore);
   const [roundOutcome, setRoundOutcome] = useState<RoundOutcome | null>(null);
@@ -151,6 +154,11 @@ export default function MoveTheKing() {
   const selectedMove = useMemo(
     () => round.moves.find((move) => move.id === selectedMoveId) ?? null,
     [round, selectedMoveId],
+  );
+  const kingMove = useMemo(
+    () =>
+      round.moves.find((move) => move.id === kingChoice?.moveId) ?? null,
+    [kingChoice, round],
   );
   const result = gameResult(metrics, duelScore);
 
@@ -241,7 +249,7 @@ export default function MoveTheKing() {
     setRoundIndex(0);
     setMetrics(initialMetrics);
     setSelectedMoveId(null);
-    setCounter(null);
+    setKingChoice(null);
     setHistory([]);
     setDuelScore(initialDuelScore);
     setRoundOutcome(null);
@@ -287,11 +295,10 @@ export default function MoveTheKing() {
     );
 
     setLastPlayerImpact(selectedMove.impact);
-    setMetrics(metricsAfterMove);
     setPhase("thinking");
 
-    let response: CounterResponse = {
-      counter: getLocalCounter(selectedMove, metricsAfterMove),
+    let response: KingChoiceResponse = {
+      choice: getLocalKingChoice(roundIndex, round.moves, metrics),
       mode: "simulation",
     };
 
@@ -305,14 +312,19 @@ export default function MoveTheKing() {
             title: round.title,
             situation: round.situation,
             pressure: round.pressure,
+            options: round.moves.map(({ id, title, detail, principle }) => ({
+              id,
+              title,
+              detail,
+              principle,
+            })),
           },
-          move: selectedMove,
-          metrics: metricsAfterMove,
+          metrics,
           history,
         }),
       }).then(async (result) => {
         if (!result.ok) throw new Error("The king declined the move.");
-        return (await result.json()) as CounterResponse;
+        return (await result.json()) as KingChoiceResponse;
       });
 
       response = await request;
@@ -322,27 +334,26 @@ export default function MoveTheKing() {
 
     await minimumThinkingTime;
 
-    const metricsAfterCounter = applyImpact(
-      metricsAfterMove,
-      response.counter.impact,
-    );
+    const chosenKingMove =
+      round.moves.find((move) => move.id === response.choice.moveId) ??
+      round.moves[0];
     const outcome = getRoundOutcome(
       selectedMove.impact,
-      response.counter.impact,
+      chosenKingMove.impact,
     );
-    setCounter(response.counter);
+    setKingChoice({ ...response.choice, moveId: chosenKingMove.id });
     setEngine(response.mode);
-    setMetrics(metricsAfterCounter);
+    setMetrics(metricsAfterMove);
     setRoundOutcome(outcome);
     setDuelScore((current) => addRoundScore(current, outcome));
     setHistory((current) => [
       ...current,
       {
         round: roundIndex,
-        move: selectedMove.title,
-        counter: response.counter.counterMove,
-        youPoints: outcome.youPoints,
-        kingPoints: outcome.kingPoints,
+        userMove: selectedMove.title,
+        kingMove: chosenKingMove.title,
+        youScore: outcome.youScore,
+        kingScore: outcome.kingScore,
       },
     ]);
     setPhase("counter");
@@ -356,7 +367,7 @@ export default function MoveTheKing() {
 
     setRoundIndex((current) => current + 1);
     setSelectedMoveId(null);
-    setCounter(null);
+    setKingChoice(null);
     setLastPlayerImpact(null);
     setRoundOutcome(null);
     setPhase("turn");
@@ -405,9 +416,9 @@ export default function MoveTheKing() {
             </h1>
             <div className={styles.introText}>
               <p>
-                Build a company through four unstable positions. Every choice
-                creates a trade-off. The King reads the board and moves against
-                the weakness you leave exposed.
+                You and the King face the same company and the same four
+                unstable positions. Choose independently, reveal both
+                decisions, and see whose judgment creates the stronger result.
               </p>
               <button type="button" onClick={startGame}>
                 Enter the board
@@ -515,44 +526,65 @@ export default function MoveTheKing() {
                   </span>
                   <div>
                     <small>The board is changing</small>
-                    <h2>The King is reading your position.</h2>
+                    <h2>The King is choosing independently.</h2>
                     <p>
-                      Looking for the second-order cost, not the obvious
-                      outcome.
+                      Same situation. Same company metrics. No access to your
+                      choice or the hidden consequences.
                     </p>
                     <i aria-hidden="true" />
                   </div>
                 </div>
               )}
 
-              {phase === "counter" && counter && (
+              {phase === "counter" &&
+                selectedMove &&
+                kingChoice &&
+                kingMove && (
                 <div className={styles.counter} aria-live="polite">
                   <div className={styles.counterTitle}>
-                    <span>The King moves</span>
+                    <span>The King chose</span>
                     <small>
                       {engine === "ai" ? "AI opponent" : "Strategy simulation"}
                     </small>
-                    <h2>{counter.counterMove}</h2>
+                    <h2>{kingMove.title}</h2>
                   </div>
                   <div className={styles.counterBody}>
-                    <p>{counter.why}</p>
-                    <blockquote>“{counter.kingLine}”</blockquote>
+                    <p>{kingChoice.why}</p>
+                    <blockquote>“{kingChoice.kingLine}”</blockquote>
                     {lastPlayerImpact && roundOutcome && (
                       <div className={styles.exchange}>
                         <div className={styles.exchangeSide}>
-                          <span>Your move</span>
+                          <span>Your decision</span>
+                          <strong className={styles.exchangeChoice}>
+                            {selectedMove.title}
+                          </strong>
                           <ImpactList impact={lastPlayerImpact} />
+                          <div className={styles.decisionTotal}>
+                            <small>Decision score</small>
+                            <strong>
+                              {formatImpact(roundOutcome.youScore)}
+                            </strong>
+                          </div>
                         </div>
                         <div className={styles.exchangeVs} aria-hidden="true">
                           <span>VS</span>
                         </div>
                         <div className={styles.exchangeSide}>
-                          <span>King&apos;s counter</span>
-                          <ImpactList impact={counter.impact} />
+                          <span>King&apos;s decision</span>
+                          <strong className={styles.exchangeChoice}>
+                            {kingMove.title}
+                          </strong>
+                          <ImpactList impact={kingMove.impact} />
+                          <div className={styles.decisionTotal}>
+                            <small>Decision score</small>
+                            <strong>
+                              {formatImpact(roundOutcome.kingScore)}
+                            </strong>
+                          </div>
                         </div>
                         <div className={styles.roundResult}>
                           <div className={styles.roundResultTitle}>
-                            <span>Round {round.code} / net result</span>
+                            <span>Round {round.code} / decision result</span>
                             <strong data-winner={roundOutcome.winner}>
                               {roundOutcome.winner === "even"
                                 ? "Even round"
@@ -561,17 +593,22 @@ export default function MoveTheKing() {
                                   : "Round to the King"}
                             </strong>
                           </div>
-                          <ImpactList impact={roundOutcome.net} />
                           <div className={styles.roundPoints}>
                             <span>
-                              You <strong>+{roundOutcome.youPoints}</strong>
+                              You{" "}
+                              <strong>
+                                {formatImpact(roundOutcome.youScore)}
+                              </strong>
                             </span>
                             <small>
-                              Positive net change scores for you. Negative net
-                              change scores for the King.
+                              Decision score = Capital + Trust + Momentum +
+                              Leverage. Higher total wins the round.
                             </small>
                             <span>
-                              King <strong>+{roundOutcome.kingPoints}</strong>
+                              King{" "}
+                              <strong>
+                                {formatImpact(roundOutcome.kingScore)}
+                              </strong>
                             </span>
                           </div>
                         </div>
@@ -614,10 +651,11 @@ export default function MoveTheKing() {
             {history.map((turn) => (
               <article key={turn.round}>
                 <small>0{turn.round + 1}</small>
-                <p>{turn.move}</p>
-                <strong>{turn.counter}</strong>
+                <p>{turn.userMove}</p>
+                <strong>{turn.kingMove}</strong>
                 <span>
-                  You +{turn.youPoints} / King +{turn.kingPoints}
+                  You {formatImpact(turn.youScore)} / King{" "}
+                  {formatImpact(turn.kingScore)}
                 </span>
               </article>
             ))}
@@ -667,8 +705,8 @@ export default function MoveTheKing() {
               <small>Move The King / rules</small>
               <h2 id="how-to-play-title">How to play.</h2>
               <p>
-                There is no perfect move. Your job is to protect the whole
-                system while the AI attacks what you leave exposed.
+                One company, one position, two decision-makers. You and the
+                King choose independently; the better judgment wins.
               </p>
             </div>
             <ol className={styles.helpSteps}>
@@ -691,21 +729,21 @@ export default function MoveTheKing() {
               <li>
                 <span>03</span>
                 <div>
-                  <strong>Face the counter</strong>
+                  <strong>Compare the decisions</strong>
                   <p>
-                    The AI King creates the second-order consequence of your
-                    choice.
+                    The AI King chooses independently from the same options. It
+                    cannot see your choice or the hidden consequences.
                   </p>
                 </div>
               </li>
               <li>
                 <span>04</span>
                 <div>
-                  <strong>Keep the system alive</strong>
+                  <strong>Build the stronger score</strong>
                   <p>
-                    Positive net change scores for you. Negative net change
-                    scores for the King. The totals carry through all four
-                    rounds.
+                    Each decision score is Capital + Trust + Momentum +
+                    Leverage. Round scores accumulate across all four
+                    positions; the company itself follows your path.
                   </p>
                 </div>
               </li>

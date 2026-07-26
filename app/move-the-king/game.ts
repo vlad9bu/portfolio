@@ -8,9 +8,9 @@ export type DuelScore = {
 };
 
 export type RoundOutcome = {
-  net: Metrics;
-  youPoints: number;
-  kingPoints: number;
+  youScore: number;
+  kingScore: number;
+  margin: number;
   winner: "you" | "king" | "even";
 };
 
@@ -36,19 +36,18 @@ export type GameBoard = {
   rounds: GameRound[];
 };
 
-export type CounterMove = {
-  counterMove: string;
+export type PublicMove = Pick<Move, "id" | "title" | "detail" | "principle">;
+
+export type KingChoice = {
+  moveId: string;
   why: string;
   kingLine: string;
-  signal: MetricKey;
-  verdict: "you_advance" | "king_holds" | "board_shifts";
-  impact: Metrics;
 };
 
 export type TurnHistory = {
   round: number;
-  move: string;
-  counter: string;
+  userMove: string;
+  kingMove: string;
 };
 
 export const metricKeys: MetricKey[] = [
@@ -232,30 +231,23 @@ export function applyImpact(metrics: Metrics, impact: Metrics): Metrics {
 
 export function getRoundOutcome(
   playerImpact: Metrics,
-  counterImpact: Metrics,
+  kingImpact: Metrics,
 ): RoundOutcome {
-  const net = metricKeys.reduce(
-    (next, key) => {
-      next[key] = playerImpact[key] + counterImpact[key];
-      return next;
-    },
-    {} as Metrics,
-  );
-  const youPoints = metricKeys.reduce(
-    (total, key) => total + Math.max(0, net[key]),
+  const youScore = metricKeys.reduce(
+    (total, key) => total + playerImpact[key],
     0,
   );
-  const kingPoints = metricKeys.reduce(
-    (total, key) => total + Math.max(0, -net[key]),
+  const kingScore = metricKeys.reduce(
+    (total, key) => total + kingImpact[key],
     0,
   );
 
   return {
-    net,
-    youPoints,
-    kingPoints,
+    youScore,
+    kingScore,
+    margin: Math.abs(youScore - kingScore),
     winner:
-      youPoints === kingPoints ? "even" : youPoints > kingPoints ? "you" : "king",
+      youScore === kingScore ? "even" : youScore > kingScore ? "you" : "king",
   };
 }
 
@@ -264,134 +256,36 @@ export function addRoundScore(
   outcome: RoundOutcome,
 ): DuelScore {
   return {
-    you: score.you + outcome.youPoints,
-    king: score.king + outcome.kingPoints,
+    you: score.you + outcome.youScore,
+    king: score.king + outcome.kingScore,
   };
 }
 
-const localCounters: Record<string, Omit<CounterMove, "signal">> = {
-  "repair-core": {
-    counterMove: "The market re-labels your pause as weakness.",
-    why:
-      "A faster competitor absorbs the demand you stopped buying. Your product gets stronger, but the category narrative moves without you.",
-    kingLine: "A better base is only useful if the market still remembers it.",
-    verdict: "board_shifts",
-    impact: { capital: -2, trust: 4, momentum: -8, leverage: 3 },
-  },
-  "expand-market": {
-    counterMove: "Complexity enters through the new segment.",
-    why:
-      "Larger accounts ask for exceptions, procurement support, and workflows the product was never designed to carry.",
-    kingLine: "You gained surface area. I gained attack vectors.",
-    verdict: "king_holds",
-    impact: { capital: -7, trust: -7, momentum: 3, leverage: -3 },
-  },
-  "raise-price": {
-    counterMove: "The middle of the market disappears.",
-    why:
-      "The new promise attracts better customers, but the old acquisition loop no longer converts at the same rate.",
-    kingLine: "A sharper position cuts both ways.",
-    verdict: "you_advance",
-    impact: { capital: 2, trust: 2, momentum: -5, leverage: 3 },
-  },
-  "own-channel": {
-    counterMove: "The audience grows slower than the burn.",
-    why:
-      "Owned distribution compounds, but not on the schedule of your operating costs. The company must survive the gap.",
-    kingLine: "Compounding is patient. Payroll is not.",
-    verdict: "board_shifts",
-    impact: { capital: -8, trust: 3, momentum: -5, leverage: 5 },
-  },
-  "buy-demand": {
-    counterMove: "The auction learns your appetite.",
-    why:
-      "The channel prices in your aggression. Volume rises immediately, but every future customer becomes more expensive.",
-    kingLine: "You bought speed. I moved the price.",
-    verdict: "king_holds",
-    impact: { capital: -9, trust: 0, momentum: 4, leverage: -6 },
-  },
-  partner: {
-    counterMove: "Your partners learn where the margin lives.",
-    why:
-      "Distribution expands, then the strongest partners ask for exclusivity and a larger share of the economics.",
-    kingLine: "Borrowed reach always sends an invoice.",
-    verdict: "board_shifts",
-    impact: { capital: -4, trust: -2, momentum: 3, leverage: -4 },
-  },
-  "hire-operators": {
-    counterMove: "Decision rights collide before they compound.",
-    why:
-      "The hires are capable, but the company has not yet made authority legible. Two weeks of speed disappear into one month of alignment.",
-    kingLine: "A title is not an operating system.",
-    verdict: "board_shifts",
-    impact: { capital: -6, trust: -3, momentum: -4, leverage: 3 },
-  },
-  automate: {
-    counterMove: "The software preserves yesterday's judgment.",
-    why:
-      "Automation removes repeated work, but it also hardens assumptions that still need founder-level revision.",
-    kingLine: "You encoded the map while the territory moved.",
-    verdict: "king_holds",
-    impact: { capital: -3, trust: -4, momentum: -2, leverage: 2 },
-  },
-  "founder-sprint": {
-    counterMove: "The organization learns to wait.",
-    why:
-      "The quarter lands, but every team internalizes the founder as the final integration layer.",
-    kingLine: "Heroics solve the deadline and preserve the bottleneck.",
-    verdict: "king_holds",
-    impact: { capital: 1, trust: -7, momentum: 3, leverage: -8 },
-  },
-  scale: {
-    counterMove: "Exceptions scale faster than revenue.",
-    why:
-      "The growth is real, but each new account multiplies the hidden operating variance you chose not to remove.",
-    kingLine: "Speed enlarges whatever already exists.",
-    verdict: "king_holds",
-    impact: { capital: -10, trust: -6, momentum: 5, leverage: -5 },
-  },
-  hold: {
-    counterMove: "A competitor takes the visible lead.",
-    why:
-      "Your system becomes more durable while the market rewards the company that kept announcing momentum.",
-    kingLine: "You may own the machine. They may own the story.",
-    verdict: "board_shifts",
-    impact: { capital: 3, trust: 4, momentum: -7, leverage: 4 },
-  },
-  stop: {
-    counterMove: "The market questions the retreat.",
-    why:
-      "You preserve capital and attention, but the decision creates a temporary trust cost with people who only saw the revenue.",
-    kingLine: "A clean exit still leaves a shadow.",
-    verdict: "you_advance",
-    impact: { capital: 4, trust: -5, momentum: -5, leverage: 6 },
-  },
-};
-
-export function getLocalCounter(
-  move: Move,
+export function getLocalKingChoice(
+  roundIndex: number,
+  options: PublicMove[],
   metrics: Metrics,
-): CounterMove {
-  const weakest = metricKeys.reduce((current, key) =>
-    metrics[key] < metrics[current] ? key : current,
+): KingChoice {
+  if (options.length === 0) {
+    throw new Error("The King needs at least one available move.");
+  }
+
+  const source = [
+    roundIndex,
+    ...metricKeys.map((key) => metrics[key]),
+    ...options.map((option) => option.title),
+  ].join("|");
+  const hash = Array.from(source).reduce(
+    (total, character) => (total * 31 + character.charCodeAt(0)) >>> 0,
+    7,
   );
-  const fallback = localCounters[move.id] ?? {
-    counterMove: `The pressure moves to ${weakest}.`,
-    why:
-      `${move.title} improves the visible position, but it pushes pressure toward ${weakest}. The system has less room to absorb the next shock there.`,
-    kingLine: "Every advantage moves the weakness somewhere else.",
-    verdict: "board_shifts" as const,
-    impact: {
-      capital: weakest === "capital" ? -8 : -2,
-      trust: weakest === "trust" ? -8 : -2,
-      momentum: weakest === "momentum" ? -8 : -2,
-      leverage: weakest === "leverage" ? -8 : -2,
-    },
-  };
+  const move = options[hash % options.length] ?? options[0]!;
 
   return {
-    ...fallback,
-    signal: weakest,
+    moveId: move.id,
+    why:
+      `I chose “${move.title}” because it is the strongest response to the visible position from the information available.`,
+    kingLine: `${move.principle} is the move I would back.`,
   };
 }
 
@@ -413,7 +307,7 @@ export function gameResult(metrics: Metrics, score: DuelScore) {
       eyebrow: "Winner / The King",
       title: "The King held the board.",
       detail:
-        `${label(weakest)} fell to ${metrics[weakest]}. The company crossed its survival floor, so the King wins regardless of the points on the board.`,
+        `${label(weakest)} fell to ${metrics[weakest]} along your path. The company crossed its survival floor, so the King wins regardless of the decision score.`,
     };
   }
 
@@ -424,7 +318,7 @@ export function gameResult(metrics: Metrics, score: DuelScore) {
       eyebrow: "Winner / You",
       title: "You moved the King.",
       detail:
-        `You won ${score.you}–${score.king}. Positive net gains survived the counters, with ${label(strongest)} finishing strongest at ${metrics[strongest]}.`,
+        `You won ${score.you} to ${score.king}. Across four decisions, your choices created more total value than the King’s alternatives. ${label(strongest)} finished strongest at ${metrics[strongest]}.`,
     };
   }
 
@@ -435,7 +329,7 @@ export function gameResult(metrics: Metrics, score: DuelScore) {
       eyebrow: "Winner / The King",
       title: "The King held the board.",
       detail:
-        `The King won ${score.king}–${score.you}. The counters created more damage than your moves created value, leaving ${label(weakest)} weakest at ${metrics[weakest]}.`,
+        `The King won ${score.king} to ${score.you}. The King’s four alternative decisions produced the stronger combined result, while ${label(weakest)} finished weakest along your path at ${metrics[weakest]}.`,
     };
   }
 
@@ -445,6 +339,6 @@ export function gameResult(metrics: Metrics, score: DuelScore) {
     eyebrow: "The board remains open",
     title: "Neither side resolved the position.",
     detail:
-      `The score finished ${score.you}–${score.king}. You absorbed every counter, but did not create enough net advantage to move the King.`,
+      `The score finished ${score.you} to ${score.king}. Your four decisions and the King’s four alternatives created the same total result.`,
   };
 }

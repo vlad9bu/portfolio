@@ -4,7 +4,7 @@ import MoveTheKing from "./MoveTheKing";
 export const metadata: Metadata = {
   title: "Move The King — A Business Logic Game",
   description:
-    "A four-move business strategy game. Build the company, protect the system, and survive the AI opponent's counter-moves.",
+    "One company, four business decisions, two independent players. Test your judgment against the AI King.",
   alternates: {
     canonical: "/move-the-king",
   },

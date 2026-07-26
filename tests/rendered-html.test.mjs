@@ -117,14 +117,17 @@ test("server-renders Move The King as a separate business logic game", async () 
 
   const html = await response.text();
   assert.match(html, /Move The King — A Business Logic Game/);
-  assert.match(html, /Every choice creates a trade-off/);
-  assert.match(html, /The King reads the board/);
+  assert.match(html, /You and the King face the same company/);
   assert.match(html, /Enter the board/);
   assert.match(html, /How to play/);
-  assert.match(html, /There is no perfect move/);
-  assert.match(html, /Keep the system alive/);
-  assert.match(html, /Positive net change scores for you/);
-  assert.match(html, /The totals carry through all four rounds/);
+  assert.match(html, /One company, one position, two decision-makers/);
+  assert.match(html, /Compare the decisions/);
+  assert.match(html, /The AI King chooses independently/);
+  assert.match(
+    html,
+    /Each decision score is Capital \+ Trust \+ Momentum \+ Leverage/,
+  );
+  assert.match(html, /the company itself follows your path/);
   assert.match(html, /og-move-the-king\.png/);
   assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9]/);
 });
@@ -150,7 +153,8 @@ test("Move The King board API keeps a complete fallback deck without a key", asy
   assert.equal(payload.model, undefined);
 });
 
-test("Move The King API returns a bounded local counter without a key", async () => {
+test("Move The King API chooses independently without a key", async () => {
+  const optionIds = ["repair-core", "expand-market", "raise-price"];
   const response = await requestWorker("/api/move-the-king", {
     method: "POST",
     headers: {
@@ -165,25 +169,35 @@ test("Move The King API returns a bounded local counter without a key", async ()
           "A focused B2B product reaches $18K MRR in six months. New accounts keep arriving, but monthly logo churn has climbed to 9%.",
         pressure:
           "The board rewards visible momentum. The product is quietly leaking trust.",
-      },
-      move: {
-        id: "repair-core",
-        title: "Slow acquisition. Repair retention.",
-        detail:
-          "Put the growth story on hold and spend one cycle fixing activation, onboarding, and the weakest workflow.",
-        principle: "Protect the base",
-        impact: {
-          capital: -5,
-          trust: 11,
-          momentum: -5,
-          leverage: 7,
-        },
+        options: [
+          {
+            id: "repair-core",
+            title: "Slow acquisition. Repair retention.",
+            detail:
+              "Put the growth story on hold and spend one cycle fixing activation and onboarding.",
+            principle: "Protect the base",
+          },
+          {
+            id: "expand-market",
+            title: "Open the next segment.",
+            detail:
+              "Use current momentum to enter a larger customer segment before competitors notice.",
+            principle: "Take the window",
+          },
+          {
+            id: "raise-price",
+            title: "Raise price. Narrow the promise.",
+            detail:
+              "Accept fewer customers and make the product accountable to a more specific outcome.",
+            principle: "Trade volume for quality",
+          },
+        ],
       },
       metrics: {
-        capital: 63,
-        trust: 72,
-        momentum: 43,
-        leverage: 44,
+        capital: 68,
+        trust: 61,
+        momentum: 48,
+        leverage: 37,
       },
       history: [],
     }),
@@ -192,7 +206,9 @@ test("Move The King API returns a bounded local counter without a key", async ()
   assert.equal(response.status, 200);
   const payload = await response.json();
   assert.equal(payload.mode, "simulation");
-  assert.equal(typeof payload.counter.counterMove, "string");
-  assert.equal(typeof payload.counter.impact.capital, "number");
+  assert.equal(optionIds.includes(payload.choice.moveId), true);
+  assert.equal(typeof payload.choice.why, "string");
+  assert.equal(typeof payload.choice.kingLine, "string");
+  assert.equal("impact" in payload.choice, false);
   assert.equal(payload.model, undefined);
 });

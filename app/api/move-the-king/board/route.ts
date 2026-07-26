@@ -256,8 +256,10 @@ export async function POST(request: Request) {
     scenarioFrames[Math.floor(Math.random() * scenarioFrames.length)];
   const instructions = [
     "Design one coherent four-round business strategy game called Move The King.",
-    "Follow one company as its position evolves. Each round must create a concrete founder-level decision under incomplete information.",
+    "Follow one company as its position evolves. Since all four rounds are generated before play, every later situation must remain plausible after any earlier option.",
+    "Each round must create a concrete founder-level decision under incomplete information.",
     "Create exactly three distinct moves per round. No move is simply correct: each must gain at least one metric and lose at least one metric.",
+    "No option may dominate another across all four metrics. Keep the three total decision scores close enough that judgment matters; never create an obviously best mathematical option.",
     "Use realistic operating choices involving product, distribution, people, capital, trust, timing, or control. Avoid trivia, jargon, named real companies, personal data, illegal activity, politics, and financial trading.",
     "Write in sharp, concise English. Title under 8 words; thesis under 24 words; round title under 10 words; situation under 70 words; pressure under 28 words; move title under 9 words; detail under 34 words; principle under 5 words.",
     "Metric impacts are integers from -12 to 12 for capital, trust, momentum, and leverage.",
